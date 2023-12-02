@@ -4,9 +4,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("width", 400)
         .attr("height", 300);
 
+    /*
     svg.append("circle")
         .attr("cx", 200)
         .attr("cy", 150)
         .attr("r", 50)
         .attr("fill", "blue");
+    */
+
+    //const g = svg.append('g')
+
+    let radarChart = new RadarChart(".radar_chart");
+
 });
