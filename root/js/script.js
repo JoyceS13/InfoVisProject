@@ -9,4 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("cy", 150)
         .attr("r", 50)
         .attr("fill", "blue");
+
+    let infocard = new InfoCard("#info_cards_wrapper", "song", "dummy");
 });
