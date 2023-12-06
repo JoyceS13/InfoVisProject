@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Call the initialize function when the DOM is loaded
     initialize().then(function (data) {
         //once the data is loaded generate the interactive elements
-        
+
         //extract columns necessary to search for artists
         const artistSearchSet = new Set();
         data.forEach(row => artistSearchSet.add(row.Artist))
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log(song)
                 infocard2.setSongData(song)
             } else {
-                infocard1.setArtistData(data.filter(row => row.Artist === idOrArtist))
+                infocard2.setArtistData(data.filter(row => row.Artist === idOrArtist))
             }
             //TODO change radar chart
         }
