@@ -1,0 +1,35 @@
+3 deliverables:
+-code
+-report
+-video
+
+deadline: 22-12-23
+
+graph ideas:
+interaction: overlay radar charts
+-> two selectors (one for each song)
+-> put some statistics next to it?
+-> maybe also pre-selector in which you can choose song or artist and then artists can also be compared
+
+heatmap: correlation matrix (all relevant features)
+-> selector with genre (or other features)
+scatterplot matrix instead of heatmap
+-> interaction with selection/zoom box 
+
+1. What are the distinguishing audio feature profiles between songs with high Spotify streams and those with high YouTube views/engagement?
+-> 2 radar charts with music features weighted with popularity streams/views
+-> maybe third with combined spotify+yt
+-> other view: PCP chart (or additional audio features on the chart)
+
+2. What is the correlation between different audio features?
+-> heatmap or SPLOM
+-> selector genre maybe
+-> maybe option to weight it
+
+rough version of all graphs: 6-12
+code finished: 10-12
+screen recording: 15-12
+edited screen recording: 17-12
+script: 19-12
+voice over done: 20-12
+report done: 20-12
