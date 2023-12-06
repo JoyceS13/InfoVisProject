@@ -7,6 +7,9 @@ function initialize() {
         .then(function (data) {
             // Log data 
             console.log('CSV data:', data);
+            num = Math.random * data.length;
+            rnd = data[data.length-1];
+            drawRC();
         })
         .catch(function (error) {
             // Handle errors if the file fails to load

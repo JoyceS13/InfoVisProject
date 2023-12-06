@@ -1,12 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const svg = d3.select("body")
-        .append("svg")
-        .attr("width", 400)
-        .attr("height", 300);
+function drawRC(data) {
+  let features = ["Danceability", "Energy", "Speechiness", "Acousticness", "Instrumentalness", "Liveness"];
 
-    svg.append("circle")
-        .attr("cx", 200)
-        .attr("cy", 150)
-        .attr("r", 50)
-        .attr("fill", "blue");
-});
+  rc = new RadarChart("#radarChart");
+  rc.setDomain(0, 1);
+  rc.setYticks([.5, 1]);
+  rc.draw(features, data);
+}
