@@ -1,0 +1,12 @@
+meeting 6-12-2023
+change spotify and YT URL for the logos that are clickable
+pull artist info from other dataset
+
+radar chart: danceability, energy, tempo (mapped), loudness (mapped, domain -60 to 0, range 0 to 1), valence
+-> some help functionality where it shows what the variable means
+
+we have left: key, tempo, duration
+
+streams, views and interactions in stacked histogram or a boxplot (logarithmic)
+
+SPLOM: danceability, energy, key, loudness, valence, tempo, duration, views, interactions (likes and comments), streams (views, interactions and streams logarithmic?)
