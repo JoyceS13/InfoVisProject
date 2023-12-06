@@ -30,43 +30,48 @@ class InfoCard{
     }
 
     generate_song_info(){
-        let header = "Song title"
+        if (this.data === undefined) {
+            return ["No song selected", ""]
+        }
+
+        let header = `${this.data.Track}`
+
         let text = `
             <div>
                 <div>Artist</div>
-                <div></div>
+                <div>${this.data.Artist}</div>
             </div>
             <div>
                 <div>Album</div>
-                <div></div>
+                <div>${this.data.Album}</div>
             </div>
             <div>
                 <div>Key</div>
-                <div></div>
+                <div>${this.data.Key}</div>
             </div>
             <div>
                 <div>Tempo</div>
-                <div> </div>
+                <div>${this.data.Tempo} </div>
             </div>
             <div>
                 <div>Spotify streams</div>
-                <div></div>
+                <div>${this.data.Stream}</div>
             </div>
             <div>
                 <div> YouTube views </div>
-                <div> </div>
+                <div>${this.data.Views} </div>
             </div>
             <div>
                 <div> YouTube interactions </div>
-                <div> </div>
+                <div>${this.data.Likes + this.data.Comments} </div>
             </div>
             <div>
                 <div> Spotify URL</div>
-                <div> </div>
+                <div> ${this.data.Url_spotify}</div>
             </div>
             <div>
                 <div> YouTube URL </div>
-                <div> </div>
+                <div>${this.data.Url_youtube} </div>
             </div>
             `
         return [header, text];
@@ -96,15 +101,16 @@ class InfoCard{
         d3.select(this.id).style("display","none");
     }
 
-    //sets a new type: song or artist for the infocard, automatically updates infocard
-    setType(type){
-        this.type = type;
+    //sets new data as the data displayed on the infocard
+    setSongData(data){
+        this.data = data;
+        this.type = "song";
         this.update_info()
-        //TODO set automatic data (first artist or song)
     }
 
-    //sets new data as the data displayed on the infocard
-    setData(data){
+    setArtistData(data){
         this.data = data;
+        this.type = "artist";
+        this.update_info()
     }
 } 
