@@ -1,10 +1,10 @@
 class InfoCard{
-    constructor(id, type){
+    constructor(id, type, data){
         this.id = id;
         this.type = type;
-        this.data;
+        this.data = data;
 
-        this.update_info(id)
+        this.update_info()
     }   
 
     //updates the information
@@ -29,6 +29,7 @@ class InfoCard{
         info_card.select(".info_card_body").html(body_text);
     }
 
+    //generates the text of the body of the info card when a song is selected
     generate_song_info(){
         if (this.data === undefined) {
             return ["No song selected", ""]
@@ -77,7 +78,7 @@ class InfoCard{
         return [header, text];
     }
 
-    //adds the information if an artist is selected
+    //generates the text of the body of the info card when a artist is selected
     generate_artist_info(){
         let header = "Artist name";
         let text = `
@@ -97,17 +98,19 @@ class InfoCard{
         return [header, text];
     }
 
+    //hides an infocard
     hide(){
         d3.select(this.id).style("display","none");
     }
 
-    //sets new data as the data displayed on the infocard
+    //sets new song data as the data displayed on the infocard
     setSongData(data){
         this.data = data;
         this.type = "song";
         this.update_info()
     }
 
+    //sets new artist data as the data displayed on the infocard
     setArtistData(data){
         this.data = data;
         this.type = "artist";

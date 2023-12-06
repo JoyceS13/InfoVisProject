@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Call the initialize function when the DOM is loaded
     initialize().then(function (data) {
+        //once the data is loaded generate the interactive elements
         
-        
+        //extract columns necessary to search for artists
         const artistSearchSet = new Set();
         data.forEach(row => artistSearchSet.add(row.Artist))
         const artistSearchData = Array.from(artistSearchSet).map(item => {
@@ -12,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
 
+        //extract columns necessary to search for songs
         const songSearchData = data.map((row, index) => {
             return {
                 isSong: true,
@@ -23,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
 
+        //combine information for artists and songs
         const searchData = [
             ...artistSearchData,
             ...songSearchData
@@ -31,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(searchData)
 
         //make infocards
-        let infocard1 = new InfoCard("#info_card1", "song");
+        let infocard1 = new InfoCard("#info_card1", "song", data[1]);
 
         let infocard2 = new InfoCard("#info_card2");
 
@@ -43,15 +47,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const dropdownContent2 = d3.select('#dropdownContent2');
         const searchContainer2 = d3.select('#compare_search_select2');
 
-
+        //when a search input is chosen change the infocard
         function searchInput1Clicked(isSong, idOrArtist) {
             if (isSong){
                 const song = data[idOrArtist]
                 console.log(song)
                 infocard1.setSongData(song)
             } else{
-                infocard2.setArtistData(data.filter(row => row.Artist === idOrArtist))
+                infocard1.setArtistData(data.filter(row => row.Artist === idOrArtist))
             }
+            //TODO change radar chart
         }
 
         function searchInput2Clicked(isSong, idOrArtist) {
@@ -59,7 +64,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const song = data[idOrArtist]
                 console.log(song)
                 infocard2.setSongData(song)
+            } else {
+                infocard1.setArtistData(data.filter(row => row.Artist === idOrArtist))
             }
+            //TODO change radar chart
         }
 
         // Add event listeners fo dropdown search bar
