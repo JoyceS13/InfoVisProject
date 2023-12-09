@@ -3,15 +3,15 @@
 // init d3, load the data file
 function initialize() {
     // Load CSV file
-    d3.csv('data/Spotify_Youtube.csv')
+    d3.csv('data/dataset.csv')
         .then(function (data) {
             // Log data 
             console.log('CSV data:', data);
-            num = Math.random * data.length;
-            rnd = data[data.length-1];
-            drawRC();
+            console.log(data[1]);
+            drawGraphs(data);
         })
         .catch(function (error) {
+    
             // Handle errors if the file fails to load
             console.error('Error loading the CSV file:', error);
         });
