@@ -1,4 +1,4 @@
-const {createApp} = Vue
+const {createApp, ref} = Vue
 
 const SelectSearchComponent = {
     template: `<div v-if="searchData!=undefined">
@@ -8,7 +8,7 @@ const SelectSearchComponent = {
                            @mousedown="showOptions()"
                            @blur="exit()"
                            @keyup="showOptions()">
-                    <div class="dropdown-conten"
+                    <div class="dropdown-content"
                          v-show="optionsShown">
                             showing items now
                         <div v-for="item in filteredData"
@@ -63,6 +63,7 @@ const SelectSearchComponent = {
             }
             this.searchTerm = item.isSong ? item.track : item.artist
             this.optionsShown = false;
+            console.log(this.selected)
             this.$emit('selected', this.selected)
         },
         showOptions() {
@@ -80,10 +81,11 @@ const RadarChartComponent = {
 
 const InfoCardComponent = {
     template: `<div>
-                   <div class="info_card_header">Info Card</div>
                    <div v-if="data === undefined || isSong === undefined">Loading</div>
                    <div v-else>
                     <div v-if="isSong">
+                      <div class="info_card_header">{{ data.Track }}</div>
+                      <div>
                           <div>Artist</div>
                           <div>{{data.Artist}}</div>
                           <div>Album</div>
@@ -101,15 +103,19 @@ const InfoCardComponent = {
                             <div>Spotify URL</div>
                             <div>{{data.Url_spotify}}</div>
                             <div>YouTube URL</div>
-                            <div>{{data.Url_youtube}}</div>                     
+                            <div>{{data.Url_youtube}}</div>    
+                        </div>
                     </div>
                    <div v-if="!isSong">
+                     <div class="info_card_header">{{artist_info.Artist}}</div>
+                     <div>
                         <div>Spotify streams:</div>
-                        <div>{{data.Stream}} </div>
+                        <div>{{artist_info.Stream}} </div>
                         <div>YouTube views: </div>
-                        <div>{{data.Views}}</div>
+                        <div>{{artist_info.Views}}</div>
                         <div>YouTube interactions: </div>
-                        <div> </div>
+                        <div> {{artist_info.Interactions}} </div>
+                     </div>
                     </div>  
                     
                    </div>
@@ -118,7 +124,22 @@ const InfoCardComponent = {
     props: ["isSong", "data"],
     computed:{
         interactions(){
-            return this.data?.Likes + this.data?.Comments
+            if (this.data === undefined){
+                return undefined
+            }
+            return parseInt(this.data.Likes) + parseInt(this.data.Comments)
+        },
+        artist_info(){
+            if (this.data === undefined){
+                return undefined
+            }
+            return {
+                Artist: this.data[0].Artist,
+                Stream: this.data.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
+                Views: this.data.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
+                Interactions: this.data.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0) +
+                this.data.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0)
+            }
         }
     }
 }
@@ -129,44 +150,42 @@ const ComparisonCard = {
         RadarChartComponent,
         InfoCardComponent
     },
-    data() {
-        return {
-            count: 0
-        }
-    }, template: `
+    template: `
                 <div>
                     <div id="comparison_card_header">Comparison Card</div>
                     <RadarChartComponent></RadarChartComponent>
                     <SelectSearchComponent :searchData = "searchData"
-                                           @selected="selection1"></SelectSearchComponent>
+                                           @selected="selected1"></SelectSearchComponent>
                     <SelectSearchComponent :searchData = "searchData"
-                                           @selected="selection2"></SelectSearchComponent>
-                    <InfoCardComponent :isSong="selection1.isSong"
+                                           @selected="selected2"></SelectSearchComponent>
+                    <InfoCardComponent  v-show="songData != undefined"
+                                        :isSong="selection1.isSong"
                                         :data="data1"></InfoCardComponent>
-                    <InfoCardComponent v-show="selection2 != undefined"
+                    <InfoCardComponent v-show="selection2.displayed"
                                        :isSong="selection2?.isSong"
                                        :data="data2"></InfoCardComponent>
-                  {{selection1}}
                 </div>`,
-    props: {
-        data: Array,
-        selection1: {
-            type: Object,
-            default: {
+    data() {
+        return {
+            selection1: {
                 isSong: true,
                 idOrArtist: 1
+            },
+            selection2: {
+                isSong: true,
+                idOrArtist: 1,
+                displayed: false
             }
-        },
-        selection2: {
-            type: Object,
-            default: undefined
         }
+    },
+    props: {
+        songData: Array
     },
     computed: {
         searchData() {
             //extract columns necessary to search for artists
             const artistSearchSet = new Set();
-            this.data.forEach(row => artistSearchSet.add(row.Artist))
+            this.songData.forEach(row => artistSearchSet.add(row.Artist))
             const artistSearchData = Array.from(artistSearchSet).map(item => {
                 return {
                     artist: item,
@@ -176,7 +195,7 @@ const ComparisonCard = {
             })
 
             //extract columns necessary to search for songs
-            const songSearchData = this.data.map((row, index) => {
+            const songSearchData = this.songData.map((row, index) => {
                 return {
                     isSong: true,
                     isArtist: false,
@@ -196,9 +215,9 @@ const ComparisonCard = {
         data1() {
             let data1
             if (this.selection1.isSong) {
-                data1 = this.data[this.selection1.idOrArtist]
+                data1 = this.songData[this.selection1.idOrArtist]
             } else {
-                data1 = this.data.filter(row => row.Artist === this.selection1.idOrArtist)
+                data1 = this.songData.filter(row => row.Artist === this.selection1.idOrArtist)
             }
             return data1
         },
@@ -208,13 +227,45 @@ const ComparisonCard = {
                 return undefined
             }
             if (this.selection2.isSong) {
-                data2 = this.data[this.selection2.idOrArtist]
+                data2 = this.songData[this.selection2.idOrArtist]
             } else {
-                data2 = this.data.filter(row => row.Artist === this.selection2.idOrArtist)
+                data2 = this.songData.filter(row => row.Artist === this.selection2.idOrArtist)
             }
             return data2
         }
+    },
+    methods: {
+        selected1(selected) {
+            console.log(selected)
+            if(JSON.stringify(selected) === '{}'){
+                this.selection1 = {
+                    isSong: true,
+                    idOrArtist: 1
+                }
+            } else {
+                this.selection1 = {
+                    isSong: selected.isSong,
+                    idOrArtist: selected.idOrArtist
+                }
+            }
+        },
+        selected2(selected) {
+            if(JSON.stringify(selected) === '{}'){
+                this.selection2 = {
+                    isSong: true,
+                    idOrArtist: 1,
+                    displayed: false
+                }
+            } else {
+                this.selection2 = {
+                    isSong: selected.isSong,
+                    idOrArtist: selected.idOrArtist,
+                    displayed: true
+                }
+            }
+        }
     }
+
 }
 
 createApp({
@@ -223,7 +274,7 @@ createApp({
     },
     template: `
     <div v-if="data != undefined">
-        <ComparisonCard :data="data"></ComparisonCard>
+        <ComparisonCard :songData="data"></ComparisonCard>
     </div>
     `,
     data() {
@@ -235,4 +286,4 @@ createApp({
         this.data = await d3.csv("data/Spotify_Youtube.csv")
         console.log(this.data)
     }
-}).mount('#app')
+}).mount('#comparison-card')
