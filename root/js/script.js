@@ -32,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ...songSearchData
         ]
 
-        console.log(searchData)
-
         //make infocards
         let infocard1 = new InfoCard("#info_card1", "song", data[1]);
 
