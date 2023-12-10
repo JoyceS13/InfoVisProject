@@ -34,6 +34,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log(searchData)
 
+        const radarData = data.map((row, index) => {
+            return {
+                id: index,
+                danceability: row.Danceability,
+                energy: row.Energy,
+                valence: row.Valence,
+                tempo: row.Tempo/100,
+                loudness: row.Loudness/-60
+            }
+        })
+
+        console.log(radarData[1])
+
+        var chartData = {
+            labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
+            datasets: [{
+                label: 'Sample Dataset',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                data: [radarData[1].danceability, radarData[1].energy, radarData[1].valence, radarData[1].tempo, radarData[1].loudness] // Adjust the values based on your data
+            }]
+        };
+
+        //make radar chart
+        // Configuration options for the radar chart
+        var options = {
+            scale: {
+                angleLines: {
+                    display: true
+                },
+                ticks: {
+                    beginAtZero: true,
+                    max: 1 // Adjust the maximum value based on your data
+                }
+            }
+        };
+
+        // Get the canvas element and create the radar chart
+        var ctx = document.getElementById('radar_chart').getContext('2d');
+        var radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: chartData,
+            options: options
+        });
+
         //make infocards
         let infocard1 = new InfoCard("#info_card1", "song", data[1]);
 
