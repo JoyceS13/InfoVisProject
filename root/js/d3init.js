@@ -7,8 +7,8 @@ function initialize() {
         .then(function (data) {
             // Log data 
             console.log('CSV data:', data);
-            console.log(data[1]);
             drawGraphs(data);
+            return data;
         })
         .catch(function (error) {
     
@@ -16,8 +16,3 @@ function initialize() {
             console.error('Error loading the CSV file:', error);
         });
 }
-
-// Call the initialization function when the DOM content is loaded
-document.addEventListener('DOMContentLoaded', function () {
-    initialize(); // Call the initialize function when the DOM is loaded
-})

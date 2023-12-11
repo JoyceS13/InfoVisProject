@@ -41,7 +41,7 @@ function drawGraphs(data) {
     genreSet = workingSet.filter(x => {return x.genre == genre});
     const container = document.createElement("div");
     container.setAttribute("id", genre);
-    document.getElementById("radar_charts").appendChild(container);
+    document.getElementById("genre_chart").appendChild(container);
     rc = new RadarChart(`#${genre}`);
     rc.setDomain(0, 1);
     rc.setYticks([.5, 1]);
