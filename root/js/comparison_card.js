@@ -1,28 +1,39 @@
 const {createApp, ref} = Vue
 
+//debounce function to speed up search
+function debounce(func, timeout = 100) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(this, args);
+        }, timeout);
+    };
+}
+
 const SelectSearchComponent = {
-    template: `<div v-if="searchData!=undefined">
-                    <input type="text" 
-                           v-model="searchTerm"
-                           :placeholder="placeholder"
-                           @focus="showOptions()"
-                           @blur="exit()"
-                           @keyup="showOptions()">
-                    <div class="dropdown-content"
-                         v-show="optionsShown">
-                            showing items now
-                        <div v-for="item in filteredData"
-                             @mousedown="optionClicked(item)"
-                             class="dropdown-item">
-                            <div v-if="item.isSong">
-                            (Song) {{item.artist}} - {{item.track}}
-                            </div>
-                            <div v-else>
-                            (Artist) {{item.artist}}
-                            </div>
-                        </div>
-                    </div>
-                </div>`,
+    template: `
+      <div v-if="searchData!=undefined">
+        <input type="text"
+               v-model="searchTerm"
+               :placeholder="placeholder"
+               @blur="exit()"
+               @focus="showOptions()"
+               @input="handleDebouncedInput">
+        <div class="dropdown-content"
+             v-show="optionsShown">
+          <div v-if="searchTerm.length > 0" v-for="item in filteredData" :key="item.isSong? item.id:item.artist"
+               @mousedown="optionClicked(item)"
+               class="dropdown-item">
+            <div v-if="item.isSong">
+              (Song) {{ item.artist }} - {{ item.track }}
+            </div>
+            <div v-else>
+              (Artist) {{ item.artist }}
+            </div>
+          </div>
+        </div>
+      </div>`,
     props: {
         name : {
             type: String,
@@ -46,13 +57,14 @@ const SelectSearchComponent = {
     },
     computed: {
         filteredData() {
-            return this.searchData.filter(item => {
-                if (item.isSong) {
-                    return (item.track +item.artist).toLowerCase().includes(this.searchTerm.toLowerCase())
-                } else {
-                    return item.artist.toLowerCase().includes(this.searchTerm.toLowerCase())
+            const filtered = [];
+            const regOption = new RegExp(this.searchTerm, 'ig');
+            for (const option of this.searchData) {
+                if (this.searchTerm.length < 1 || option.isSong? (option?.track + option?.artist).match(regOption): option.artist?.match(regOption)){
+                    filtered.push(option);
                 }
-            });
+            }
+            return filtered;
         }
     },
     methods: {
@@ -71,7 +83,11 @@ const SelectSearchComponent = {
         },
         exit() {
             this.optionsShown = false;
-        }
+        },
+        // Apply the debounce to handleInput method
+        handleDebouncedInput: debounce(function () {
+            this.optionsShown = true;
+        })
     }
 }
 
@@ -273,16 +289,42 @@ createApp({
         ComparisonCard
     },
     template: `
-    <div v-if="data != undefined">
-        <ComparisonCard :songData="data"></ComparisonCard>
+      <div v-if="loading">Loading</div>
+    <div v-else>
+        <ComparisonCard :songData="dataset"></ComparisonCard>
     </div>
     `,
     data() {
         return {
-            data: undefined
-        }
+            dataset: null,
+            loading: true,
+        };
     },
     async mounted() {
-        this.data = await d3.csv("data/Spotify_Youtube.csv")
+        await this.loadDataset();
+    },
+    methods: {
+        async loadDataset() {
+            // Check if window.dataset is already defined
+            if (window.dataset) {
+                this.dataset = window.dataset;
+                this.loading = false;
+                return;
+            }
+
+            // If not defined, wait for it
+            await new Promise((resolve) => {
+                const checkDataset = () => {
+                    if (window.dataset) {
+                        this.dataset = window.dataset;
+                        this.loading = false;
+                        resolve();
+                    } else {
+                        setTimeout(checkDataset, 100); // Check again after 100ms
+                    }
+                };
+                checkDataset();
+            });
+        },
     }
 }).mount('#comparison-card')

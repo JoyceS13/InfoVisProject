@@ -7,7 +7,7 @@ function initialize() {
         .then(function (data) {
             // Log data 
             //console.log('CSV data:', data);
-
+            window.dataset = data
             return data;
         })
         .catch(function (error) {
