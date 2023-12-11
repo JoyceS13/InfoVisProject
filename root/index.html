@@ -7,7 +7,10 @@
     <!-- stylesheet -->
     <link rel="stylesheet" href="css/style.css">
     <!-- tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
 </head>
 
 <body>
@@ -17,12 +20,12 @@
         <div id="comparison_radar_chart" class="radar_chart"></div>
         <div id="select_options">
             <div id="compare_search_select1" class="search_select">
-                    <input type="text" class="search-input" id="searchInput1" placeholder="Search songs/artists">
-                    <div class="dropdown-content" id="dropdownContent1"></div>
+                <input type="text" class="search-input" id="searchInput1" placeholder="Search songs/artists">
+                <div class="dropdown-content" id="dropdownContent1"></div>
             </div>
             <div id="compare_search_select2" class="search_select">
-                    <input type="text" class="search-input" id="searchInput2" placeholder="Search songs/artists">
-                    <div class="dropdown-content" id="dropdownContent2"></div>
+                <input type="text" class="search-input" id="searchInput2" placeholder="Search songs/artists">
+                <div class="dropdown-content" id="dropdownContent2"></div>
             </div>
         </div>
         <div id="info_cards_wrapper">
@@ -37,19 +40,38 @@
         </div>
     </div>
 
-    <div id="genre_chart"></div>
+    <div id="genre_comparison">
+        <div id="genre_chart"></div>
+        <div id="genre_selector">
+            <div class="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
+
+                <form>
+                    <label for="items" class="block text-sm font-medium text-gray-600">Select 2-3 items:</label>
+                    <select id="items"multiple="multiple" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </select>
+                    <br>
+                </form>
+            
+            </div>
+        </div>
+    </div>
+
     <!-- vue framework -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="module" src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <!-- D3.js lib -->
     <script type="module" src="https://d3js.org/d3.v6.min.js"></script>
     <!-- Chart.js lib -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+    <!-- Select2 lib -->
+    
+<script type="module" src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <!-- scripts -->
     <script src="js/info_card.js"></script>
     <script src="js/d3init.js"></script>
-    <script src="js/script.js"></script> 
+    <script src="js/script.js"></script>
     <script src="js/RadarChart.js"></script>
     <script src="js/GenreComparisonChart.js"></script>
 </body>

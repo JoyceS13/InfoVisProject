@@ -91,6 +91,9 @@ class RadarChart {
         this.drawGraph(features);
         this.drawData(data);
     }
+    clear() {
+        this.svg.selectAll("path").remove();
+    }
 }
 
 

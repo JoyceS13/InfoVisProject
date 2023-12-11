@@ -1,4 +1,6 @@
 let features = ["Danceability", "Energy", "Valence", "Loudness", "Tempo"];
+let genre_chart = new RadarChart("#genre_chart");
+let genre_working_set = undefined;
 
 function draw_weighted(dataSet,chart) {
   // Prepare data
@@ -19,10 +21,10 @@ function draw_weighted(dataSet,chart) {
 }
 
 
-function drawGraphs(data) {
-
+function init_genre_graph(data) {
+  // Setup working set for genredata.
   const maxTempo = d3.max(data, d => d.Tempo/1);
-  const workingSet = data.map(function (row) {
+  genre_working_set = data.map(function (row) {
     return {
       Views: row.Views,
       Stream: row.Stream,
@@ -35,20 +37,38 @@ function drawGraphs(data) {
     }
   });
 
-  genres = new Set(data.map(d => d.track_genre));
+  // Setup genre chart.
+  genre_chart.setDomain(0, 1);
+  genre_chart.setYticks([.5, 1]);
+  genre_chart.drawGraph(features);
 
-  genres.forEach(function(genre) {
-    genreSet = workingSet.filter(x => {return x.genre == genre});
-    const container = document.createElement("div");
-    container.setAttribute("id", genre);
-    document.getElementById("genre_chart").appendChild(container);
-    rc = new RadarChart(`#${genre}`);
-    rc.setDomain(0, 1);
-    rc.setYticks([.5, 1]);
-    console.log(rc);
-    rc.drawGraph(features);
-    draw_weighted(genreSet, rc);
-  });
+  // setup selector
+  let genres = new Set(data.map(d => d.track_genre));
 
-
+  genres.forEach(function (genre) {
+    const option = document.createElement("option");
+    option.setAttribute("value", genre);
+    option.innerHTML = genre;
+    $('#items').append(option);
+  })
 }
+
+function draw_genres(genres) {
+  genres.forEach(function(genre) {
+    genreSet = genre_working_set.filter(x => {return x.genre == genre});
+    draw_weighted(genreSet, genre_chart);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  $('#items').select2({
+      placeholder: 'Select items',
+      allowClear: true,
+      width: 'resolve', // 'resolve' makes the width adjust to the container
+  });
+  $('#items').on('change', function() {
+    const selectedValues = $(this).val();
+    draw_genres(genres);
+    console.log('Items selected:', selectedValues);
+  })
+});
