@@ -5,7 +5,7 @@ const SelectSearchComponent = {
                     <input type="text" 
                            v-model="searchTerm"
                            :placeholder="placeholder"
-                           @mousedown="showOptions()"
+                           @focus="showOptions()"
                            @blur="exit()"
                            @keyup="showOptions()">
                     <div class="dropdown-content"
@@ -284,6 +284,5 @@ createApp({
     },
     async mounted() {
         this.data = await d3.csv("data/Spotify_Youtube.csv")
-        console.log(this.data)
     }
 }).mount('#comparison-card')
