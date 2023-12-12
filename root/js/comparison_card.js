@@ -92,14 +92,111 @@ const SelectSearchComponent = {
 }
 
 const RadarChartComponent = {
-    template: `<div>Radar Chart</div>`
+    template: `<div>Radar Chart</div>
+        <canvas id="radar_chart"></canvas>`,
+    data() {
+        return {
+            radarChart: null
+        }
+    },
+    props: {
+        data1: Object,
+        data2: Object,
+        data2_displayed: {
+            type: Boolean,
+            default: false
+        },
+        maxTempo: Number
+    },
+    computed: {
+        radarData1() {
+            if (this.data1 === undefined){
+                return [0,0,0,0,0]
+            }
+            return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, this.data1.Tempo/this.maxTempo, this.loudnessMap(this.data1.Loudness)]
+        },
+        radarData2() {
+            if (this.data2 === undefined){
+                return [0,0,0,0,0]
+            }
+            return [this.data2.Danceability, this.data2.Energy, this.data2.Valence, this.data2.Tempo/this.maxTempo, this.loudnessMap(this.data2.Loudness)]
+        }
+    },
+    mounted() {
+        this.createChart()
+    },
+    methods: {
+        createChart() {
+            // Configuration options for the radar chart
+            const options = {
+                scale: {
+                    angleLines: {
+                        display: true
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        max: 1 // Adjust the maximum value based on your data
+                    }
+                }
+            };
+
+            // Get the canvas element and create the radar chart
+            const ctx = document.getElementById('radar_chart').getContext('2d');
+            this.radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
+                    datasets: [{
+                            label: this.data1?.Track,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            data: this.radarData1
+                        }]
+                },
+                options: {
+                    scale: {
+                        ticks: { beginAtZero: true },
+                    },
+                }
+            });
+        },
+        updateChart() {
+            this.radarChart.data.datasets[0].data = this.radarData1
+            this.radarChart.data.datasets[0].label = this.data1.isSong? this.data1.Track: this.data1.Artist
+            if (this.data2_displayed){
+                this.radarChart.data.datasets[1].data = this.radarData2
+                this.radarChart.data.datasets[1].backgroundColor = 'rgba(255, 99, 132, 0.2)'
+                this.radarChart.data.datasets[1].borderColor = 'rgba(255, 99, 132, 1)'
+                this.radarChart.data.datasets[1].borderWidth = 2
+                this.radarChart.data.datasets[1].label = this.data2.isSong? this.data2.Track: this.data2.Artist
+            }
+
+            this.radarChart.update()
+        },
+        loudnessMap(loudness){
+            return (loudness + 60)/60
+        }
+    },
+    watch: {
+        data1: {
+            handler: 'updateChart'
+        },
+        data2: {
+            handler: 'updateChart'
+        },
+        data2_displayed: {
+            handler: 'updateChart'
+        }
+    }
 }
+
 
 const InfoCardComponent = {
     template: `<div>
-                   <div v-if="data === undefined || isSong === undefined">Loading</div>
+                   <div v-if="data === undefined">Loading</div>
                    <div v-else>
-                    <div v-if="isSong">
+                    <div v-if="data.isSong">
                       <div class="info_card_header">{{ data.Track }}</div>
                       <div>
                           <div>Artist</div>
@@ -122,40 +219,28 @@ const InfoCardComponent = {
                             <div>{{data.Url_youtube}}</div>    
                         </div>
                     </div>
-                   <div v-if="!isSong">
-                     <div class="info_card_header">{{artist_info.Artist}}</div>
+                   <div v-if="!data.isSong">
+                     <div class="info_card_header">{{data.Artist}}</div>
                      <div>
                         <div>Spotify streams:</div>
-                        <div>{{artist_info.Stream}} </div>
+                        <div>{{data.Stream}} </div>
                         <div>YouTube views: </div>
-                        <div>{{artist_info.Views}}</div>
+                        <div>{{data.Views}}</div>
                         <div>YouTube interactions: </div>
-                        <div> {{artist_info.Interactions}} </div>
+                        <div> {{data.Interactions}} </div>
                      </div>
                     </div>  
                     
                    </div>
                    
                 </div>`,
-    props: ["isSong", "data"],
+    props: ["data"],
     computed:{
         interactions(){
             if (this.data === undefined){
                 return undefined
             }
             return parseInt(this.data.Likes) + parseInt(this.data.Comments)
-        },
-        artist_info(){
-            if (this.data === undefined){
-                return undefined
-            }
-            return {
-                Artist: this.data[0].Artist,
-                Stream: this.data.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
-                Views: this.data.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
-                Interactions: this.data.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0) +
-                this.data.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0)
-            }
         }
     }
 }
@@ -169,16 +254,17 @@ const ComparisonCard = {
     template: `
                 <div>
                     <div id="comparison_card_header">Comparison Card</div>
-                    <RadarChartComponent></RadarChartComponent>
+                    <RadarChartComponent :data1="data1"
+                    :data2="data2"
+                    :data2_displayed="selection2.displayed"
+                    :maxTempo="maxTempo"></RadarChartComponent>
                     <SelectSearchComponent :searchData = "searchData"
                                            @selected="selected1"></SelectSearchComponent>
                     <SelectSearchComponent :searchData = "searchData"
                                            @selected="selected2"></SelectSearchComponent>
                     <InfoCardComponent  v-show="songData != undefined"
-                                        :isSong="selection1.isSong"
                                         :data="data1"></InfoCardComponent>
                     <InfoCardComponent v-show="selection2.displayed"
-                                       :isSong="selection2?.isSong"
                                        :data="data2"></InfoCardComponent>
                 </div>`,
     data() {
@@ -191,68 +277,24 @@ const ComparisonCard = {
                 isSong: true,
                 idOrArtist: 1,
                 displayed: false
-            }
+            },
+            maxTempo: 0,
+            searchData: undefined
         }
     },
     props: {
         songData: Array
     },
     computed: {
-        searchData() {
-            //extract columns necessary to search for artists
-            const artistSearchSet = new Set();
-            this.songData.forEach(row => artistSearchSet.add(row.Artist))
-            const artistSearchData = Array.from(artistSearchSet).map(item => {
-                return {
-                    artist: item,
-                    isArtist: true,
-                    isSong: false,
-                }
-            })
-
-            //extract columns necessary to search for songs
-            const songSearchData = this.songData.map((row, index) => {
-                return {
-                    isSong: true,
-                    isArtist: false,
-                    id: index,
-                    artist: row.Artist,
-                    track: row.Track
-
-                }
-            })
-
-            //return combined information for artists and songs
-            return [
-                ...artistSearchData,
-                ...songSearchData
-            ]
-        },
         data1() {
-            let data1
-            if (this.selection1.isSong) {
-                data1 = this.songData[this.selection1.idOrArtist]
-            } else {
-                data1 = this.songData.filter(row => row.Artist === this.selection1.idOrArtist)
-            }
-            return data1
+            return this.getData(this.selection1)
         },
         data2() {
-            let data2
-            if(this.selection2 === undefined){
-                return undefined
-            }
-            if (this.selection2.isSong) {
-                data2 = this.songData[this.selection2.idOrArtist]
-            } else {
-                data2 = this.songData.filter(row => row.Artist === this.selection2.idOrArtist)
-            }
-            return data2
+            return this.getData(this.selection2)
         }
     },
     methods: {
         selected1(selected) {
-            console.log(selected)
             if(JSON.stringify(selected) === '{}'){
                 this.selection1 = {
                     isSong: true,
@@ -279,7 +321,71 @@ const ComparisonCard = {
                     displayed: true
                 }
             }
+        },
+        artist_info(artistData){
+            if (artistData === undefined){
+                return undefined
+            }
+            return {
+                Artist: artistData[0].Artist,
+                Stream: artistData.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
+                Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
+                Interactions: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0) +
+                    artistData.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0),
+                Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length
+            }
+        },
+        getData(selection){
+            let retrievedData
+            if (selection.isSong) {
+                retrievedData = this.songData[selection.idOrArtist]
+                retrievedData.isSong = true
+            } else {
+                const artistData = this.songData.filter(row => row.Artist === selection.idOrArtist)
+                retrievedData = this.artist_info(artistData)
+                console.log(retrievedData)
+                retrievedData.isSong = false
+            }
+            return retrievedData
         }
+    },
+    mounted() {
+        //get max tempo
+        this.maxTempo = Math.max(...this.songData.map(row => parseInt(row.Tempo)))
+
+        //generate search data
+        //extract columns necessary to search for artists
+        const artistSearchSet = new Set();
+        this.songData.forEach(row => artistSearchSet.add(row.Artist))
+        const artistSearchData = Array.from(artistSearchSet).map(item => {
+            return {
+                artist: item,
+                isArtist: true,
+                isSong: false,
+            }
+        })
+
+        //extract columns necessary to search for songs
+        const songSearchData = this.songData.map((row, index) => {
+            return {
+                isSong: true,
+                isArtist: false,
+                id: index,
+                artist: row.Artist,
+                track: row.Track
+
+            }
+        })
+
+        //return combined information for artists and songs
+        this.searchData = [
+            ...artistSearchData,
+            ...songSearchData
+        ]
     }
 
 }
