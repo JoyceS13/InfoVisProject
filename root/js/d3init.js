@@ -6,8 +6,8 @@ function initialize() {
     return d3.csv('data/Spotify_Youtube.csv')
         .then(function (data) {
             // Log data 
-            console.log('CSV data:', data);
-
+            //console.log('CSV data:', data);
+            window.dataset = data
             return data;
         })
         .catch(function (error) {
