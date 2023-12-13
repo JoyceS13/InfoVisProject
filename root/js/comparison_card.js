@@ -1,4 +1,4 @@
-const {createApp, ref} = Vue
+const {createApp} = Vue
 
 //debounce function to speed up search
 function debounce(func, timeout = 100) {
@@ -13,7 +13,8 @@ function debounce(func, timeout = 100) {
 
 const SelectSearchComponent = {
     template: `
-      <div v-if="searchData!=undefined">
+      <div v-if="searchData===undefined"></div>
+      <div v-else>
         <input type="text"
                v-model="searchTerm"
                :placeholder="placeholder"
@@ -51,9 +52,6 @@ const SelectSearchComponent = {
             searchTerm: "",
             optionsShown: false
         }
-    },
-    created() {
-        this.$emit('selected', this.selected)
     },
     computed: {
         filteredData() {
@@ -241,7 +239,7 @@ const ComparisonCard = {
                     <RadarChartComponent v-if="maxTempo > 0"
                         :data1="data1"
                     :maxTempo="maxTempo"></RadarChartComponent>
-                    <InfoCardComponent  v-show="songData != undefined"
+                    <InfoCardComponent  v-show="songData"
                                         :data="data1"></InfoCardComponent>
                 </div>`,
     data() {
