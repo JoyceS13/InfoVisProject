@@ -191,6 +191,87 @@ const RadarChartComponent = {
     }
 }
 
+const StackedHistogramComponent = {
+    template: `<div>Stacked Histogram</div>
+        <div id="histogram"></div>`,
+    props: {
+        data: Array
+    },
+    methods: {
+        createStackedHistogram() {
+            // Extract values from the data
+            const cleanData = this.data.map(d => ({
+                streams: isNaN(d.Stream)? 0: parseInt(d.Stream),
+                views: isNaN(d.Views)? 0: parseInt(d.Views),
+                interactions: (isNaN(d.Likes)? 0:parseInt(d.Likes)) + (isNaN(d.Comments)? 0:parseInt(d.Comments)),
+                songPopularity: isNaN(d.songPopularity)? 0:parseInt(d.songPopularity)
+            }));
+
+            // Set up SVG
+            const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const svg = d3.select('#histogram')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Set up scales
+            const xScale = d3.scaleLinear()
+                .domain([0, d3.max(cleanData, d => d.songPopularity)])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(cleanData, d => d.streams + d.views + d.interactions)])
+                .range([height, 0]);
+
+            const color = d3.scaleOrdinal()
+                .domain(['streams', 'views', 'interactions'])
+                .range(['steelblue', 'orange', 'green']);
+
+            // Create histogram bins
+            const bins = d3.histogram()
+                .value(d => d.songPopularity)
+                .domain(xScale.domain())
+                .thresholds(xScale.ticks(20))(cleanData);
+
+            console.log(bins)
+
+            // Draw bars
+            svg.selectAll('rect')
+                .data(bins)
+                .enter()
+                .append('g')
+                .selectAll('rect')
+                .data(d => {
+                    console.log(d)
+                    const avgComposition = {
+                        A: d3.mean(d, e => e.streams),
+                        B: d3.mean(d, e => e.views),
+                        C: d3.mean(d, e => e.interactions),
+                    };
+                    return ['streams', 'views', 'interactions'].map(key => ({ key, value: avgComposition[key] }));
+                })
+                .enter()
+                .append('rect')
+                .attr('x', d => xScale(d3.max(d[0]?.length ? d : [d], e => e.data?.songPopularity)))
+                .attr('y', d => yScale(d3.sum(d, e => e.value)))
+                .attr('height', d => height - yScale(d3.sum(d, e => e.value)))
+                .attr('width', xScale(bins[0].x1) - xScale(bins[0].x0))
+                .attr('fill', d => color(d.key));
+
+        }
+    },
+    mounted() {
+        this.data = this.data.map(row => ({...row, songPopularity: parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments)}))
+        this.createStackedHistogram()
+        console.log("histogram created")
+    }
+
+}
 
 const InfoCardComponent = {
     template: `<div>
@@ -227,7 +308,7 @@ const InfoCardComponent = {
                         <div>YouTube views: </div>
                         <div>{{data.Views}}</div>
                         <div>YouTube interactions: </div>
-                        <div> {{data.Interactions}} </div>
+                        <div> {{interactions}} </div>
                      </div>
                     </div>  
                     
@@ -249,7 +330,8 @@ const ComparisonCard = {
     components: {
         SelectSearchComponent,
         RadarChartComponent,
-        InfoCardComponent
+        InfoCardComponent,
+        StackedHistogramComponent
     },
     template: `
                 <div>
@@ -262,6 +344,7 @@ const ComparisonCard = {
                                            @selected="selected1"></SelectSearchComponent>
                     <SelectSearchComponent :searchData = "searchData"
                                            @selected="selected2"></SelectSearchComponent>
+                    <StackedHistogramComponent :data="songData"></StackedHistogramComponent>
                     <InfoCardComponent  v-show="songData != undefined"
                                         :data="data1"></InfoCardComponent>
                     <InfoCardComponent v-show="selection2.displayed"
@@ -330,8 +413,8 @@ const ComparisonCard = {
                 Artist: artistData[0].Artist,
                 Stream: artistData.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
                 Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
-                Interactions: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0) +
-                    artistData.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0),
+                Likes: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0),
+                Comments: artistData.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0),
                 Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
@@ -355,7 +438,8 @@ const ComparisonCard = {
     },
     mounted() {
         //get max tempo
-        this.maxTempo = Math.max(...this.songData.map(row => parseInt(row.Tempo)))
+        this.maxTempo = d3.max(this.songData, row => parseInt(row.Tempo))
+        console.log(this.maxTempo)
 
         //generate search data
         //extract columns necessary to search for artists
