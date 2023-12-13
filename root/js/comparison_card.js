@@ -75,7 +75,7 @@ const SelectSearchComponent = {
             }
             this.searchTerm = item.isSong ? item.track : item.artist
             this.optionsShown = false;
-            console.log(this.selected)
+            optionChanged(item.isSong, item.isSong ? item.id : item.artist)
             this.$emit('selected', this.selected)
         },
         showOptions() {
@@ -101,11 +101,6 @@ const RadarChartComponent = {
     },
     props: {
         data1: Object,
-        data2: Object,
-        data2_displayed: {
-            type: Boolean,
-            default: false
-        },
         maxTempo: Number
     },
     computed: {
@@ -113,17 +108,13 @@ const RadarChartComponent = {
             if (this.data1 === undefined){
                 return [0,0,0,0,0]
             }
-            return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, this.data1.Tempo/this.maxTempo, this.loudnessMap(this.data1.Loudness)]
-        },
-        radarData2() {
-            if (this.data2 === undefined){
-                return [0,0,0,0,0]
-            }
-            return [this.data2.Danceability, this.data2.Energy, this.data2.Valence, this.data2.Tempo/this.maxTempo, this.loudnessMap(this.data2.Loudness)]
+            console.log(this.data1.Tempo)
+            return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, (parseFloat(this.data1.Tempo)/this.maxTempo), this.loudnessMap(parseFloat(this.data1.Loudness))]
         }
     },
     mounted() {
         this.createChart()
+
     },
     methods: {
         createChart() {
@@ -133,16 +124,20 @@ const RadarChartComponent = {
                     angleLines: {
                         display: true
                     },
-                    ticks: {
-                        beginAtZero: true,
-                        max: 1 // Adjust the maximum value based on your data
+                    r: {
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                        min: 0,
+                        max: 1
                     }
-                }
+                },
+                responsive: true
             };
 
             // Get the canvas element and create the radar chart
             const ctx = document.getElementById('radar_chart').getContext('2d');
-            this.radarChart = new Chart(ctx, {
+            const radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
@@ -154,25 +149,19 @@ const RadarChartComponent = {
                             data: this.radarData1
                         }]
                 },
-                options: {
-                    scale: {
-                        ticks: { beginAtZero: true },
-                    },
-                }
+                options: options
             });
+
+            Object.seal(radarChart);
+            this.radarChart = radarChart;
         },
         updateChart() {
-            this.radarChart.data.datasets[0].data = this.radarData1
-            this.radarChart.data.datasets[0].label = this.data1.isSong? this.data1.Track: this.data1.Artist
-            if (this.data2_displayed){
-                this.radarChart.data.datasets[1].data = this.radarData2
-                this.radarChart.data.datasets[1].backgroundColor = 'rgba(255, 99, 132, 0.2)'
-                this.radarChart.data.datasets[1].borderColor = 'rgba(255, 99, 132, 1)'
-                this.radarChart.data.datasets[1].borderWidth = 2
-                this.radarChart.data.datasets[1].label = this.data2.isSong? this.data2.Track: this.data2.Artist
-            }
+            if (this.radarChart) {
+                this.radarChart.data.datasets[0].data = this.radarData1
+                this.radarChart.data.datasets[0].label = this.data1.isSong ? this.data1.Track : this.data1.Artist
 
-            this.radarChart.update()
+                this.radarChart.update()
+            }
         },
         loudnessMap(loudness){
             return (loudness + 60)/60
@@ -181,96 +170,8 @@ const RadarChartComponent = {
     watch: {
         data1: {
             handler: 'updateChart'
-        },
-        data2: {
-            handler: 'updateChart'
-        },
-        data2_displayed: {
-            handler: 'updateChart'
         }
     }
-}
-
-const StackedHistogramComponent = {
-    template: `<div>Stacked Histogram</div>
-        <div id="histogram"></div>`,
-    props: {
-        data: Array
-    },
-    methods: {
-        createStackedHistogram() {
-            // Extract values from the data
-            const cleanData = this.data.map(d => ({
-                streams: isNaN(d.Stream)? 0: parseInt(d.Stream),
-                views: isNaN(d.Views)? 0: parseInt(d.Views),
-                interactions: (isNaN(d.Likes)? 0:parseInt(d.Likes)) + (isNaN(d.Comments)? 0:parseInt(d.Comments)),
-                songPopularity: isNaN(d.songPopularity)? 0:parseInt(d.songPopularity)
-            }));
-
-            // Set up SVG
-            const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-            const width = 500 - margin.left - margin.right;
-            const height = 300 - margin.top - margin.bottom;
-
-            const svg = d3.select('#histogram')
-                .append('svg')
-                .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom)
-                .append('g')
-                .attr('transform', `translate(${margin.left},${margin.top})`);
-
-            // Set up scales
-            const xScale = d3.scaleLinear()
-                .domain([0, d3.max(cleanData, d => d.songPopularity)])
-                .range([0, width]);
-
-            const yScale = d3.scaleLinear()
-                .domain([0, d3.max(cleanData, d => d.streams + d.views + d.interactions)])
-                .range([height, 0]);
-
-            const color = d3.scaleOrdinal()
-                .domain(['streams', 'views', 'interactions'])
-                .range(['steelblue', 'orange', 'green']);
-
-            // Create histogram bins
-            const bins = d3.histogram()
-                .value(d => d.songPopularity)
-                .domain(xScale.domain())
-                .thresholds(xScale.ticks(20))(cleanData);
-
-            console.log(bins)
-
-            // Draw bars
-            svg.selectAll('rect')
-                .data(bins)
-                .enter()
-                .append('g')
-                .selectAll('rect')
-                .data(d => {
-                    console.log(d)
-                    const avgComposition = {
-                        A: d3.mean(d, e => e.streams),
-                        B: d3.mean(d, e => e.views),
-                        C: d3.mean(d, e => e.interactions),
-                    };
-                    return ['streams', 'views', 'interactions'].map(key => ({ key, value: avgComposition[key] }));
-                })
-                .enter()
-                .append('rect')
-                .attr('x', d => xScale(d3.max(d[0]?.length ? d : [d], e => e.data?.songPopularity)))
-                .attr('y', d => yScale(d3.sum(d, e => e.value)))
-                .attr('height', d => height - yScale(d3.sum(d, e => e.value)))
-                .attr('width', xScale(bins[0].x1) - xScale(bins[0].x0))
-                .attr('fill', d => color(d.key));
-
-        }
-    },
-    mounted() {
-        this.data = this.data.map(row => ({...row, songPopularity: parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments)}))
-        this.createStackedHistogram()
-        console.log("histogram created")
-    }
-
 }
 
 const InfoCardComponent = {
@@ -330,36 +231,24 @@ const ComparisonCard = {
     components: {
         SelectSearchComponent,
         RadarChartComponent,
-        InfoCardComponent,
-        StackedHistogramComponent
+        InfoCardComponent
     },
     template: `
                 <div>
                     <div id="comparison_card_header">Comparison Card</div>
-                    <RadarChartComponent :data1="data1"
-                    :data2="data2"
-                    :data2_displayed="selection2.displayed"
+                  <SelectSearchComponent :searchData = "searchData"
+                                         @selected="selected1"></SelectSearchComponent>
+                    <RadarChartComponent v-if="maxTempo > 0"
+                        :data1="data1"
                     :maxTempo="maxTempo"></RadarChartComponent>
-                    <SelectSearchComponent :searchData = "searchData"
-                                           @selected="selected1"></SelectSearchComponent>
-                    <SelectSearchComponent :searchData = "searchData"
-                                           @selected="selected2"></SelectSearchComponent>
-                    <StackedHistogramComponent :data="songData"></StackedHistogramComponent>
                     <InfoCardComponent  v-show="songData != undefined"
                                         :data="data1"></InfoCardComponent>
-                    <InfoCardComponent v-show="selection2.displayed"
-                                       :data="data2"></InfoCardComponent>
                 </div>`,
     data() {
         return {
             selection1: {
                 isSong: true,
                 idOrArtist: 1
-            },
-            selection2: {
-                isSong: true,
-                idOrArtist: 1,
-                displayed: false
             },
             maxTempo: 0,
             searchData: undefined
@@ -371,9 +260,6 @@ const ComparisonCard = {
     computed: {
         data1() {
             return this.getData(this.selection1)
-        },
-        data2() {
-            return this.getData(this.selection2)
         }
     },
     methods: {
@@ -387,21 +273,6 @@ const ComparisonCard = {
                 this.selection1 = {
                     isSong: selected.isSong,
                     idOrArtist: selected.idOrArtist
-                }
-            }
-        },
-        selected2(selected) {
-            if(JSON.stringify(selected) === '{}'){
-                this.selection2 = {
-                    isSong: true,
-                    idOrArtist: 1,
-                    displayed: false
-                }
-            } else {
-                this.selection2 = {
-                    isSong: selected.isSong,
-                    idOrArtist: selected.idOrArtist,
-                    displayed: true
                 }
             }
         },

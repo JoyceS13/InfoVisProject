@@ -6,3 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+
+function optionChanged(isSong, idOrArtist){
+
+}
