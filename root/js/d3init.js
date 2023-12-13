@@ -7,7 +7,7 @@ function initialize() {
         .then(function (data) {
             // Log data 
             console.log('CSV data:', data);
-            init_genre_graph(data);
+            initGenreGraph(data);
             return data;
         })
         .catch(function (error) {

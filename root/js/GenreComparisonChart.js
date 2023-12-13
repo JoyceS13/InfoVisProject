@@ -1,11 +1,12 @@
+let genreChart; // Chart.js radar chart instance
+let genreWorkingSet; // Working set for genre data
 let features = ["Danceability", "Energy", "Valence", "Loudness", "Tempo"];
-let genre_chart = new RadarChart("#genre_chart");
-let genre_working_set = undefined;
 
-function draw_weighted(dataSet, chart, color) {
+function drawWeighted(dataSet, color) {
   // Prepare data
-  const totalViews = d3.sum(dataSet, d => d.Views);
+  const totalViews = dataSet.reduce((acc, d) => acc + d.Views, 0);
   const avgColumns = {};
+
   dataSet.forEach(row => {
     Object.keys(row).forEach(key => {
       if (features.includes(key)) {
@@ -13,85 +14,121 @@ function draw_weighted(dataSet, chart, color) {
       }
     });
   });
+
   for (let feature of features) {
     avgColumns[feature] = avgColumns[feature] / dataSet.length;
   }
-  chart.drawData(avgColumns, color);
 
-}
-
-
-function init_genre_graph(data) {
-  // Setup working set for genredata.
-  const maxTempo = d3.max(data, d => d.Tempo / 1);
-  genre_working_set = data.map(function (row) {
-    return {
-      Views: row.Views,
-      Stream: row.Stream,
-      Danceability: row.Danceability,
-      Energy: row.Energy,
-      Valence: row.Valence,
-      Loudness: (row.Loudness) / 60 + 1,
-      Tempo: row.Tempo / maxTempo,
-      genre: row.track_genre
-    }
+  // Draw a filled shape for the data
+  genreChart.data.datasets.push({
+    label: 'Genre',
+    data: features.map(feature => avgColumns[feature]),
+    backgroundColor: color,
+    borderColor: color,
+    borderWidth: 2,
+    fill: true,
   });
 
-  // Setup genre chart.
-  genre_chart.setDomain(0, 1);
-  genre_chart.setYticks([.5, 1]);
-  genre_chart.drawGraph(features);
+  // Update the chart
+  genreChart.update();
+}
 
-  // setup selector
+function initGenreGraph(data) {
+  // Setup working set for genre data.
+  const maxTempo = d3.max(data, d => d.Tempo / 1);
+  genreWorkingSet = data.map(row => ({
+    Views: row.Views,
+    Stream: row.Stream,
+    Danceability: row.Danceability,
+    Energy: row.Energy,
+    Valence: row.Valence,
+    Loudness: (row.Loudness) / 60 + 1,
+    Tempo: row.Tempo / maxTempo,
+    genre: row.track_genre
+  }));
+
+  // Setup genre chart.
+  genreChart = new Chart(document.getElementById('genre_chart'), {
+    type: 'radar',
+    data: {
+      labels: features,
+      datasets: [],
+    },
+    options: {
+      scales: {
+        r: {
+          min: 0,
+          max: 1,
+          stepSize: 0.25,
+        },
+      },
+    },
+  });
+
+  // Setup selector
   let genres = new Set(data.map(d => d.track_genre));
 
   genres.forEach(function (genre) {
     const option = document.createElement("option");
     option.setAttribute("value", genre);
     option.innerHTML = genre;
-    $('#items').append(option);
-  })
+    document.getElementById('items').appendChild(option);
+  });
 }
 
-function draw_genres(genres) {
-  colors = [];
-  for (let i = 0; i < genres.length; ++i) {
-    colors.push(d3.rgb(d3.interpolateViridis(i / (genres.length - 1))));
-  }
-  genre_chart.clear();
-  d3.select("#legend").html("");
-  const legendDiv = d3.select("#legend");
-  for(let i = 0; i < genres.length; i++){
-    genreSet = genre_working_set.filter(x => { return x.genre == genres[i] });
-    draw_weighted(genreSet, genre_chart, colors[i]);
+function drawGenres(genres) {
+  const colors = genres.map((genre, i) => d3.rgb(d3.interpolateViridis(i / (genres.length - 1))));
 
-    const legendItem = legendDiv.append("div")
-      .style("display", "flex")
-      .style("align-items", "center")
-      .style("margin-bottom", "8px"); // Adjust spacing as needed
+  // Clear existing datasets
+  genreChart.data.datasets = [];
+  genreChart.update();
 
-    legendItem.append("div")
-      .style("width", "18px")
-      .style("height", "18px")
-      .style("background-color", colors[i])
-      .style("margin-right", "8px");
+  // Draw radar charts for selected genres
+  genres.forEach((genre, i) => {
+    const genreSet = genreWorkingSet.filter(x => x.genre === genre);
+    drawWeighted(genreSet, colors[i]);
+  });
 
-    legendItem.append("span")
-      .text(genres[i])
-      .style("font-size", "14px") // Adjust font size as needed
-      .style("font-weight", "500"); // Adjust font weight as needed
-  }
+  // Draw legend
+  const legendDiv = document.getElementById('legend');
+  legendDiv.innerHTML = '';
+
+  genres.forEach((genre, i) => {
+    const legendItem = document.createElement('div');
+    legendItem.style.display = 'flex';
+    legendItem.style.alignItems = 'center';
+    legendItem.style.marginBottom = '8px';
+
+    const legendColor = document.createElement('div');
+    legendColor.style.width = '18px';
+    legendColor.style.height = '18px';
+    legendColor.style.backgroundColor = colors[i];
+    legendColor.style.marginRight = '8px';
+
+    const legendText = document.createElement('span');
+    legendText.innerText = genre;
+    legendText.style.fontSize = '14px';
+    legendText.style.fontWeight = '500';
+
+    legendItem.appendChild(legendColor);
+    legendItem.appendChild(legendText);
+
+    legendDiv.appendChild(legendItem);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  // Setup select2 plugin
   $('#items').select2({
     placeholder: 'Select items',
     allowClear: true,
-    width: 'resolve', // 'resolve' makes the width adjust to the container
+    width: 'resolve',
   });
+
+  // Event listener for genre selection change
   $('#items').on('change', function () {
-    const selected_genres = $(this).val();
-    draw_genres(selected_genres);
-    console.log('Items selected:', selected_genres);
-  })
+    const selectedGenres = $(this).val();
+    drawGenres(selectedGenres);
+    console.log('Items selected:', selectedGenres);
+  });
 });

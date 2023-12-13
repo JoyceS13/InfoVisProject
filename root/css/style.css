@@ -2,8 +2,17 @@
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
     max-height: 150px;
     overflow-y: auto;
 }
+
+:root {
+    --color-1: #D774F2;
+    --color-2: #B6C5F2;
+    --color-3: #B6F2D0;
+    --color-4: #F2D57C;
+    --color-5: #D9D6D2;
+}
+
