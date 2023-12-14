@@ -16,3 +16,5 @@ function initialize() {
             console.error('Error loading the CSV file:', error);
         });
 }
+
+document.addEventListener('DOMContentLoaded', initialize);
