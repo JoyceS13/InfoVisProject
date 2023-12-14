@@ -3,15 +3,18 @@
 // init d3, load the data file
 function initialize() {
     // Load CSV file
-    return d3.csv('data/Spotify_Youtube.csv')
+    d3.csv('data/dataset.csv')
         .then(function (data) {
             // Log data 
-            //console.log('CSV data:', data);
             window.dataset = data
+            initGenreGraph(data);
             return data;
         })
         .catch(function (error) {
+    
             // Handle errors if the file fails to load
             console.error('Error loading the CSV file:', error);
         });
 }
+
+document.addEventListener('DOMContentLoaded', initialize);
