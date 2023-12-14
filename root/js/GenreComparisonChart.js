@@ -2,7 +2,7 @@ let genreChart; // Chart.js radar chart instance
 let genreWorkingSet; // Working set for genre data
 let features = ["Danceability", "Energy", "Valence", "Loudness", "Tempo"];
 
-function drawWeighted(dataSet, color) {
+function drawWeighted(dataSet, color, name) {
   // Prepare data
   const totalViews = dataSet.reduce((acc, d) => acc + d.Views, 0);
   const avgColumns = {};
@@ -21,9 +21,9 @@ function drawWeighted(dataSet, color) {
 
   // Draw a filled shape for the data
   genreChart.data.datasets.push({
-    label: 'Genre',
+    label: name,
     data: features.map(feature => avgColumns[feature]),
-    backgroundColor: color,
+    backgroundColor: color.copy({opacity: 0.2}),
     borderColor: color,
     borderWidth: 2,
     fill: true,
@@ -86,34 +86,7 @@ function drawGenres(genres) {
   // Draw radar charts for selected genres
   genres.forEach((genre, i) => {
     const genreSet = genreWorkingSet.filter(x => x.genre === genre);
-    drawWeighted(genreSet, colors[i]);
-  });
-
-  // Draw legend
-  const legendDiv = document.getElementById('legend');
-  legendDiv.innerHTML = '';
-
-  genres.forEach((genre, i) => {
-    const legendItem = document.createElement('div');
-    legendItem.style.display = 'flex';
-    legendItem.style.alignItems = 'center';
-    legendItem.style.marginBottom = '8px';
-
-    const legendColor = document.createElement('div');
-    legendColor.style.width = '18px';
-    legendColor.style.height = '18px';
-    legendColor.style.backgroundColor = colors[i];
-    legendColor.style.marginRight = '8px';
-
-    const legendText = document.createElement('span');
-    legendText.innerText = genre;
-    legendText.style.fontSize = '14px';
-    legendText.style.fontWeight = '500';
-
-    legendItem.appendChild(legendColor);
-    legendItem.appendChild(legendText);
-
-    legendDiv.appendChild(legendItem);
+    drawWeighted(genreSet, colors[i], genre);
   });
 }
 
