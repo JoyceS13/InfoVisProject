@@ -225,11 +225,116 @@ const InfoCardComponent = {
     }
 }
 
+const Top10BarChartComponent = {
+    template: `<div>
+                <div>Top 10 Bar Chart</div>
+                <div class="top10_bar_chart"></div>
+                </div>`,
+    data() {
+        return {
+            barChart: null
+        }
+    },
+    props: {
+        data: Object,
+        isSong: Boolean,
+        componentId: String
+    },
+    computed: {
+        barData() {
+            if (this.data === undefined) {
+                return [];
+            }
+
+            // Create a map to store total popularity for each track or artist
+            const popularityMap = new Map();
+
+            // Iterate through the data and update the map
+            this.data.forEach(row => {
+                const key = this.isSong ? row.Track : row.Artist;
+                const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
+
+                // Update the total popularity in the map
+                popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
+            });
+
+            // Convert the map entries to an array
+            const sortedEntries = [...popularityMap.entries()]
+                .sort((a, b) => b[1] - a[1]) // Sort by total popularity in descending order
+
+            // Convert the sorted entries back to an array of objects
+            const result = sortedEntries.map(([key, totalPopularity]) => {
+                return {
+                    [this.isSong ? 'Track' : 'Artist']: key,
+                    'totalPopularity': totalPopularity
+                };
+            });
+
+            return result.slice(0, 10);
+        }
+    },
+    methods: {
+        createBarChart() {
+
+            const svg_width = 600;
+            const svg_height = 400;
+            const component = `#${this.componentId}`
+
+            const svg = d3.select(component).select(".top10_bar_chart")
+                .append("svg")
+                .attr("width", svg_width)
+                .attr("height", svg_height)
+
+            const margin = {top: 20, right: 20, bottom: 30, left: 100};
+            const width = svg_width - margin.left - margin.right;
+            const height = svg_height - margin.top - margin.bottom;
+
+            const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            const y = d3.scaleBand()
+                .domain(this.barData.map(d => this.isSong? d.Track:d.Artist))
+                .rangeRound([0, height]).padding(0.1)
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(this.barData, d => d.totalPopularity)])
+                .range([0,width]);
+
+            //TODO: fix axis labels
+
+            g.append("g")
+                .attr("class", "axis axis--y")
+                .call(d3.axisLeft(y));
+
+            g.append("g")
+                .attr("class", "axis axis--x")
+                .call(d3.axisTop(x).ticks(10, "s"))
+                .append("text")
+                    .attr("x", 6)
+                    .attr("fill", "#000")
+                    .text("Streams");
+
+            g.selectAll(".bar")
+                .data(this.barData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("y", d => y(this.isSong? d.Track:d.Artist))
+                .attr("x", x(0))
+                .attr("height", y.bandwidth())
+                .attr("width", d => x(d.totalPopularity));
+
+            this.barChart = svg;
+        }
+    },
+    mounted() {
+        this.createBarChart()
+    }
+}
+
 const ComparisonCard = {
     components: {
         SelectSearchComponent,
         RadarChartComponent,
-        InfoCardComponent
+        InfoCardComponent,
+        Top10BarChartComponent
     },
     template: `
                 <div>
@@ -240,16 +345,35 @@ const ComparisonCard = {
                         :data1="data1"
                     :maxTempo="maxTempo"></RadarChartComponent>
                     <InfoCardComponent  v-show="songData"
-                                        :data="data1"></InfoCardComponent>
+                                        :data="data1"
+                    ></InfoCardComponent>
+                  <div>
+                    <div id="song-barchart">
+                    <Top10BarChartComponent
+                                            :data="songData"
+                                            :is-song="true"
+                                            :component-id="song_barchart"
+                    ></Top10BarChartComponent>
+                    </div>
+                    <div id="artist-barchart">
+                    <Top10BarChartComponent
+                                            :data="songData"
+                                            :is-song="false"
+                                            :component-id="artist_barchart"
+                    ></Top10BarChartComponent>
+                    </div>
+                  </div>
                 </div>`,
     data() {
         return {
             selection1: {
                 isSong: true,
-                idOrArtist: 1
+                idOrArtist: "0d28khcov6AiegSCpG5TuT"
             },
             maxTempo: 0,
-            searchData: undefined
+            searchData: undefined,
+            song_barchart: "song-barchart",
+            artist_barchart: "artist-barchart"
         }
     },
     props: {
@@ -265,7 +389,7 @@ const ComparisonCard = {
             if(JSON.stringify(selected) === '{}'){
                 this.selection1 = {
                     isSong: true,
-                    idOrArtist: 1
+                    idOrArtist: "0d28khcov6AiegSCpG5TuT"
                 }
             } else {
                 this.selection1 = {
@@ -288,18 +412,18 @@ const ComparisonCard = {
                 Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length
+                Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Genre: new Set(artistData.map(row => row.Genre))
             }
         },
         getData(selection){
             let retrievedData
             if (selection.isSong) {
-                retrievedData = this.songData[selection.idOrArtist]
+                retrievedData = this.songData.find(row => row.track_id === selection.idOrArtist)
                 retrievedData.isSong = true
             } else {
                 const artistData = this.songData.filter(row => row.Artist === selection.idOrArtist)
                 retrievedData = this.artist_info(artistData)
-                console.log(retrievedData)
                 retrievedData.isSong = false
             }
             return retrievedData
@@ -323,14 +447,13 @@ const ComparisonCard = {
         })
 
         //extract columns necessary to search for songs
-        const songSearchData = this.songData.map((row, index) => {
+        const songSearchData = this.songData.map(row => {
             return {
                 isSong: true,
                 isArtist: false,
-                id: index,
+                id: row.track_id,
                 artist: row.Artist,
                 track: row.Track
-
             }
         })
 
@@ -366,16 +489,17 @@ createApp({
         async loadDataset() {
             // Check if window.dataset is already defined
             if (window.dataset) {
-                this.dataset = window.dataset;
+                const loadedData = window.dataset;
+                this.dataset = this.cleanData(loadedData);
                 this.loading = false;
-                return;
             }
 
             // If not defined, wait for it
             await new Promise((resolve) => {
                 const checkDataset = () => {
                     if (window.dataset) {
-                        this.dataset = window.dataset;
+                        const loadedData = window.dataset;
+                        this.dataset = this.cleanData(loadedData);
                         this.loading = false;
                         resolve();
                     } else {
@@ -384,6 +508,16 @@ createApp({
                 };
                 checkDataset();
             });
+
+
         },
+        // Remove duplicate rows
+        cleanData(data) {
+            const songs = new Set();
+            data.forEach(row => songs.add(row.track_id));
+            const songData = Array.from(songs).map(track_id => data.find(row => row.track_id === track_id));
+            songData.forEach(row => row.Genre = new Set(data.filter(row => row.track_id === row.track_id).map(row => row.Genre)));
+            return songData;
+        }
     }
 }).mount('#comparison-card')
