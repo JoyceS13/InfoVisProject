@@ -6,7 +6,7 @@ function initialize() {
     d3.csv('data/dataset.csv')
         .then(function (data) {
             // Log data 
-            console.log('CSV data:', data);
+            window.dataset = data
             initGenreGraph(data);
             return data;
         })
