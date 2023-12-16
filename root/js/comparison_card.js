@@ -120,14 +120,21 @@ const RadarChartComponent = {
             const options = {
                 scale: {
                     angleLines: {
-                        display: true
+                        display: true,
+                        font: {
+                            size: 16
+                        }
                     },
                     r: {
                         ticks: {
                             beginAtZero: true,
+                            stepSize: 0.2
                         },
                         min: 0,
                         max: 1
+                    },
+                    pointLabels: {
+                        fontSize: 16 // Set the font size for axis labels
                     }
                 },
                 responsive: true
@@ -149,6 +156,8 @@ const RadarChartComponent = {
                 },
                 options: options
             });
+
+            radarChart.defaults.font.size = 16;
 
             Object.seal(radarChart);
             this.radarChart = radarChart;
@@ -173,51 +182,81 @@ const RadarChartComponent = {
 }
 
 const InfoCardComponent = {
-    template: `<div>
-                   <div v-if="data === undefined">Loading</div>
+    template: `<div v-if="data === undefined">Loading</div>
                    <div v-else>
                     <div v-if="data.isSong">
                       <div class="info_card_header">{{ data.Track }}</div>
+                      <div class="grid grid-cols-2">
                       <div>
                           <div>Artist</div>
-                          <div>{{Array.from(data.Artist).join(', ')}}</div>
-                          <div>Album</div>
-                            <div>{{data.Album}}</div>
-                            <div>Key</div>
-                            <div>{{data.Key}}</div>
-                            <div>Tempo</div>
-                            <div>{{data.Tempo}}</div>
-                            <div>Duration</div>
-                            <div>{{data.Duration}}</div>
-                            <div>Genres</div>
-                            <div>{{Array.from(data.Genre).join(', ')}}</div>
-                            <div>Spotify streams</div>
-                            <div>{{data.Stream}}</div>
-                            <div>YouTube views</div>
-                            <div>{{data.Views}}</div>
-                            <div>YouTube interactions</div>
-                            <div>{{interactions}}</div>
-                            <div>Spotify URL</div>
-                            <div>{{data.Url_spotify}}</div>
-                            <div>YouTube URL</div>
-                            <div>{{data.Url_youtube}}</div>    
+                        <div>Album</div>
+                        <div>Key</div>
+                        <div>Tempo</div>
+                        <div>Duration</div>
+                        <div>Genres</div>
+                        <div>Spotify streams</div>
+                        <div>YouTube views</div>
+                        <div>YouTube interactions</div>
                         </div>
+                      <div>
+                          <div>{{Array.from(data.Artist).join(', ')}}</div>
+                          
+                            <div>{{data.Album}}</div>
+                            
+                            <div>{{data.Key}}</div>
+                            
+                            <div>{{data.Tempo}}</div>
+                            
+                            <div>{{data.Duration_ms}}</div>
+                            
+                            <div>{{Array.from(data.Genre).join(', ')}}</div>
+                            
+                            <div>{{data.Stream}}</div>
+                            
+                            <div>{{data.Views}}</div>
+                            
+                            <div>{{interactions}}</div>
+                      </div>
+                      </div>
+                            <div class="flex flex-row space-x-2 justify-center mt-4 h-8">
+                            <div class="h-fit">
+
+                              <a :href="data.Url_spotify" ><img class="object-cover h-full" src="data/images/spotify_logo.png"></a>
+
+                            </div>
+                            <div class="h-fit">
+
+                              <a :href="data.Url_youtube" ><img class="object-cover h-full" src="data/images/youtube_logo.png"></a>
+
+                            </div>
+                            </div>
                     </div>
                    <div v-if="!data.isSong">
                      <div class="info_card_header">{{data.Artist}}</div>
-                     <div>
-                        <div>Genres:</div>
+                     <div class="grid grid-cols-2">
+                       <div>
+                         <div>Number of tracks:</div>
+                         <div>Top track:</div>
+                         <div>Genres:</div>
+                         <div>Spotify streams:</div>
+                         <div>YouTube views: </div>
+                         <div>YouTube interactions: </div>
+                       </div>
+                        <div>   
+                        <div>{{data.NumberOfTracks}}</div>
+                        
+                        <div>{{data.TopTrack}}</div>
+                        
                         <div>{{Array.from(data.Genre).join(', ')}}</div>
-                        <div>Spotify streams:</div>
+                        
                         <div>{{data.Stream}} </div>
-                        <div>YouTube views: </div>
+                        
                         <div>{{data.Views}}</div>
-                        <div>YouTube interactions: </div>
+                        
                         <div> {{interactions}} </div>
+                          </div>
                      </div>
-                    </div>  
-                    
-                   </div>
+                    </div>
                    
                 </div>`,
     props: ["data"],
@@ -286,14 +325,14 @@ const Top10BarChartComponent = {
                 };
             });
 
-            return result.slice(0, 10);
+            return result.slice(0, 5);
         }
     },
     methods: {
         createBarChart() {
 
-            const svg_width = 600;
-            const svg_height = 400;
+            const svg_width = 500;
+            const svg_height = 200;
             const component = `#${this.componentId}`
 
             const svg = d3.select(component).select(".top10_bar_chart")
@@ -353,32 +392,41 @@ const ComparisonCard = {
         Top10BarChartComponent
     },
     template: `
-                <div>
-                    <div id="comparison_card_header">Comparison Card</div>
-                  <SelectSearchComponent :searchData = "searchData"
+                <div class="flex flex-col">
+                    <div class="info_card_header">Comparison Card</div>
+
+                  <div class="flex flex-row justify-between">
+                  <div class="flex-1">
+                    <SelectSearchComponent :searchData = "searchData"
                                          @selected="selected1"></SelectSearchComponent>
                     <RadarChartComponent v-if="maxTempo > 0"
                         :data1="data1"
                     :maxTempo="maxTempo"></RadarChartComponent>
-                    <InfoCardComponent  v-show="songData"
-                                        :data="data1"
-                    ></InfoCardComponent>
-                  <div>
-                    <div id="song-barchart">
-                    <Top10BarChartComponent
-                                            :data="songData"
-                                            :is-song="true"
-                                            :component-id="song_barchart"
-                    ></Top10BarChartComponent>
+                  </div>
+                    <div class="flex-1">
+                      <InfoCardComponent  v-show="songData"
+                                        :data="data1"></InfoCardComponent>
                     </div>
-                    <div id="artist-barchart">
-                    <Top10BarChartComponent
-                                            :data="songData"
-                                            :is-song="false"
-                                            :component-id="artist_barchart"
-                    ></Top10BarChartComponent>
+                    <div class="flex-1">
+                      <div class="flex flex-col">
+                        <div id="song-barchart" class="flex-1">
+                          <Top10BarChartComponent
+                              :data="songData"
+                              :is-song="true"
+                              :component-id="song_barchart"
+                          ></Top10BarChartComponent>
+                        </div>
+                        <div id="artist-barchart" class="flex-1">
+                          <Top10BarChartComponent
+                              :data="songData"
+                              :is-song="false"
+                              :component-id="artist_barchart"
+                          ></Top10BarChartComponent>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  
                 </div>`,
     data() {
         return {
@@ -432,7 +480,11 @@ const ComparisonCard = {
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Genre: genreSet
+                Genre: genreSet,
+                TopTrack: artistData.sort((a,b) => parseInt(b.Stream) + parseInt(b.Views) + parseInt(b.Likes) + parseInt(b.Comments)
+                    - parseInt(a.Stream) - parseInt(a.Views) - parseInt(a.Likes) - parseInt(a.Comments))[0].Track,
+                NumberOfTracks: artistData.length
+
             }
         },
         getData(selection){
