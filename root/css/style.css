@@ -7,11 +7,59 @@
     overflow-y: auto;
 }
 
+div {
+    font-size: 14px;
+}
+
 :root {
     --color-1: #C2A0D9;
     --color-2: #8ABF9C;
     --color-3: #F2D750;
     --color-4: #F2F0E9;
     --color-5: #D95D41;
+}
+
+body {
+    background-color: var(--color-5);
+}
+
+.bg-color-1 {
+    background-color: var(--color-1);
+}
+
+.bg-color-2 {
+    background-color: var(--color-2);
+}
+
+.bg-color-3 {
+    background-color: var(--color-3);
+}
+
+.bg-color-4 {
+    background-color: var(--color-4);
+}
+
+.bg-color-5 {
+    background-color: var(--color-5);
+}
+
+.color-1 {
+    color: var(--color-1);
+}
+
+.color-2 {
+    color: var(--color-2);
+}
+
+.color-3 {
+    color: var(--color-3);
+}
+
+.color-4 {
+    color: var(--color-4);
+}
+
+.color-5 {
+    color: var(--color-5);
 }
 

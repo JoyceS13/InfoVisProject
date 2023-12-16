@@ -20,7 +20,8 @@ const SelectSearchComponent = {
                :placeholder="placeholder"
                @blur="exit()"
                @focus="showOptions()"
-               @input="handleDebouncedInput">
+               @input="handleDebouncedInput"
+                class="object-fill">
         <div class="dropdown-content"
              v-show="optionsShown">
           <div v-if="searchTerm.length > 0" v-for="item in filteredData" :key="item.isSong? item.id:item.artist"
@@ -36,14 +37,14 @@ const SelectSearchComponent = {
         </div>
       </div>`,
     props: {
-        name : {
+        name: {
             type: String,
             default: "searchDropdown"
         },
         searchData: Array,
-        placeholder:{
-                type: String,
-                default:"Search songs/artists"
+        placeholder: {
+            type: String,
+            default: "Search songs/artists"
         }
     },
     data() {
@@ -58,7 +59,7 @@ const SelectSearchComponent = {
             const filtered = [];
             const regOption = new RegExp(this.searchTerm, 'ig');
             for (const option of this.searchData) {
-                if (this.searchTerm.length < 1 || option.isSong? (option?.track + Array.from(option?.artist).join(' ')).match(regOption): option.artist?.match(regOption)){
+                if (this.searchTerm.length < 1 || option.isSong ? (option?.track + Array.from(option?.artist).join(' ')).match(regOption) : option.artist?.match(regOption)) {
                     filtered.push(option);
                 }
             }
@@ -90,8 +91,9 @@ const SelectSearchComponent = {
 }
 
 const RadarChartComponent = {
-    template: `<div>Radar Chart</div>
-        <canvas id="radar_chart"></canvas>`,
+    template: `
+      <div>Radar Chart</div>
+      <canvas id="radar_chart"></canvas>`,
     data() {
         return {
             radarChart: null
@@ -103,11 +105,11 @@ const RadarChartComponent = {
     },
     computed: {
         radarData1() {
-            if (this.data1 === undefined){
-                return [0,0,0,0,0]
+            if (this.data1 === undefined) {
+                return [0, 0, 0, 0, 0]
             }
             console.log(this.data1.Tempo)
-            return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, (parseFloat(this.data1.Tempo)/this.maxTempo), this.loudnessMap(parseFloat(this.data1.Loudness))]
+            return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, (parseFloat(this.data1.Tempo) / this.maxTempo), this.loudnessMap(parseFloat(this.data1.Loudness))]
         }
     },
     mounted() {
@@ -121,20 +123,29 @@ const RadarChartComponent = {
                 scale: {
                     angleLines: {
                         display: true,
+                    },
+                    pointLabels: {
                         font: {
-                            size: 16
-                        }
+                            size: 24
+                        },
+                        color: 'blue',
                     },
                     r: {
                         ticks: {
                             beginAtZero: true,
-                            stepSize: 0.2
+                            stepSize: 0.2,
+                            backdropColor: '#D9D6D2'
                         },
                         min: 0,
                         max: 1
                     },
-                    pointLabels: {
-                        fontSize: 16 // Set the font size for axis labels
+                    font: {
+                        size: 12
+                    },
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 },
                 responsive: true
@@ -147,17 +158,15 @@ const RadarChartComponent = {
                 data: {
                     labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
                     datasets: [{
-                            label: this.data1?.Track,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 2,
-                            data: this.radarData1
-                        }]
+                        label: this.data1?.Track,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        data: this.radarData1
+                    }]
                 },
                 options: options
             });
-
-            radarChart.defaults.font.size = 16;
 
             Object.seal(radarChart);
             this.radarChart = radarChart;
@@ -170,8 +179,8 @@ const RadarChartComponent = {
                 this.radarChart.update()
             }
         },
-        loudnessMap(loudness){
-            return (loudness + 60)/60
+        loudnessMap(loudness) {
+            return (loudness + 60) / 60
         }
     },
     watch: {
@@ -182,87 +191,75 @@ const RadarChartComponent = {
 }
 
 const InfoCardComponent = {
-    template: `<div v-if="data === undefined">Loading</div>
-                   <div v-else>
-                    <div v-if="data.isSong">
-                      <div class="info_card_header">{{ data.Track }}</div>
-                      <div class="grid grid-cols-2">
-                      <div>
-                          <div>Artist</div>
-                        <div>Album</div>
-                        <div>Key</div>
-                        <div>Tempo</div>
-                        <div>Duration</div>
-                        <div>Genres</div>
-                        <div>Spotify streams</div>
-                        <div>YouTube views</div>
-                        <div>YouTube interactions</div>
-                        </div>
-                      <div>
-                          <div>{{Array.from(data.Artist).join(', ')}}</div>
-                          
-                            <div>{{data.Album}}</div>
-                            
-                            <div>{{data.Key}}</div>
-                            
-                            <div>{{data.Tempo}}</div>
-                            
-                            <div>{{data.Duration_ms}}</div>
-                            
-                            <div>{{Array.from(data.Genre).join(', ')}}</div>
-                            
-                            <div>{{data.Stream}}</div>
-                            
-                            <div>{{data.Views}}</div>
-                            
-                            <div>{{interactions}}</div>
-                      </div>
-                      </div>
-                            <div class="flex flex-row space-x-2 justify-center mt-4 h-8">
-                            <div class="h-fit">
+    template: `
+      <div v-if="data === undefined">Loading</div>
+      <div v-else class="flex flex-col min-w-full">
+        <div v-if="data.isSong" class="flex flex-col min-w-400">
+          <div class="info_card_header text-xl min-w-full">{{ data.Track }}</div>
+          <div class="flex flex-row grid gap-4 grid-cols-2 justify-between grow-1">
+            <div class="min-w-max">
+              <div>Artist</div>
+              <div>Album</div>
+              <div>Key</div>
+              <div>Tempo</div>
+              <div>Duration</div>
+              <div>Genres</div>
+              <div class="break-normal whitespace-normal">Spotify streams</div>
+              <div class="break-normal whitespace-normal">YouTube views</div>
+              <div class="break-normal whitespace-normal">YouTube interactions</div>
+            </div>
+            <div class="min-w-max">
+              <div>{{ Array.from(data.Artist).join(', ') }}</div>
+              <div>{{ data.Album }}</div>
+              <div>{{ data.Key }}</div>
+              <div>{{ data.Tempo }}</div>
+              <div>{{ data.Duration_ms }}</div>
+              <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
+              <div>{{ data.Stream }}</div>
+              <div>{{ data.Views }}</div>
+              <div>{{ interactions }}</div>
+            </div>
+          </div>
+          <div class="flex flex-row space-x-2 justify-center mt-4 h-8">
+            <div class="h-fit">
 
-                              <a :href="data.Url_spotify" ><img class="object-cover h-full" src="data/images/spotify_logo.png"></a>
+              <a :href="data.Url_spotify"><img class="object-cover h-full" src="data/images/spotify_logo.png"></a>
 
-                            </div>
-                            <div class="h-fit">
+            </div>
+            <div class="h-fit">
 
-                              <a :href="data.Url_youtube" ><img class="object-cover h-full" src="data/images/youtube_logo.png"></a>
+              <a :href="data.Url_youtube"><img class="object-cover h-full" src="data/images/youtube_logo.png"></a>
 
-                            </div>
-                            </div>
-                    </div>
-                   <div v-if="!data.isSong">
-                     <div class="info_card_header">{{data.Artist}}</div>
-                     <div class="grid grid-cols-2">
-                       <div>
-                         <div>Number of tracks:</div>
-                         <div>Top track:</div>
-                         <div>Genres:</div>
-                         <div>Spotify streams:</div>
-                         <div>YouTube views: </div>
-                         <div>YouTube interactions: </div>
-                       </div>
-                        <div>   
-                        <div>{{data.NumberOfTracks}}</div>
-                        
-                        <div>{{data.TopTrack}}</div>
-                        
-                        <div>{{Array.from(data.Genre).join(', ')}}</div>
-                        
-                        <div>{{data.Stream}} </div>
-                        
-                        <div>{{data.Views}}</div>
-                        
-                        <div> {{interactions}} </div>
-                          </div>
-                     </div>
-                    </div>
-                   
-                </div>`,
+            </div>
+          </div>
+        </div>
+        <div v-if="!data.isSong">
+          <div class="info_card_header text-xl ">{{ data.Artist }}</div>
+          <div class="grid grid-cols-2">
+            <div>
+              <div>Number of tracks:</div>
+              <div>Top track:</div>
+              <div>Genres:</div>
+              <div class="break-normal whitespace-normal">Spotify streams:</div>
+              <div class="break-normal whitespace-normal">YouTube views:</div>
+              <div class="break-normal whitespace-normal">YouTube interactions:</div>
+            </div>
+            <div>
+              <div>{{ data.NumberOfTracks }}</div>
+              <div>{{ data.TopTrack }}</div>
+              <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
+              <div>{{ data.Stream }}</div>
+              <div>{{ data.Views }}</div>
+              <div> {{ interactions }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>`,
     props: ["data"],
-    computed:{
-        interactions(){
-            if (this.data === undefined){
+    computed: {
+        interactions() {
+            if (this.data === undefined) {
                 return undefined
             }
             return parseInt(this.data.Likes) + parseInt(this.data.Comments)
@@ -271,10 +268,11 @@ const InfoCardComponent = {
 }
 
 const Top10BarChartComponent = {
-    template: `<div>
-                <div>Top 10 Bar Chart</div>
-                <div class="top10_bar_chart"></div>
-                </div>`,
+    template: `
+      <div>
+        <div>Top 10 Bar Chart</div>
+        <div class="top10_bar_chart"></div>
+      </div>`,
     data() {
         return {
             barChart: null
@@ -295,7 +293,7 @@ const Top10BarChartComponent = {
             const popularityMap = new Map();
 
             // Iterate through the data and update the map
-            if(this.isSong) {
+            if (this.isSong) {
                 this.data.forEach(row => {
                     const key = row.Track
                     const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
@@ -331,8 +329,8 @@ const Top10BarChartComponent = {
     methods: {
         createBarChart() {
 
-            const svg_width = 500;
-            const svg_height = 200;
+            const svg_width = 400;
+            const svg_height = 175;
             const component = `#${this.componentId}`
 
             const svg = d3.select(component).select(".top10_bar_chart")
@@ -347,11 +345,11 @@ const Top10BarChartComponent = {
             const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             const y = d3.scaleBand()
-                .domain(this.barData.map(d => this.isSong? d.Track:d.Artist))
+                .domain(this.barData.map(d => this.isSong ? d.Track : d.Artist))
                 .rangeRound([0, height]).padding(0.1)
             const x = d3.scaleLinear()
                 .domain([0, d3.max(this.barData, d => d.totalPopularity)])
-                .range([0,width]);
+                .range([0, width]);
 
             //TODO: fix axis labels
 
@@ -363,15 +361,15 @@ const Top10BarChartComponent = {
                 .attr("class", "axis axis--x")
                 .call(d3.axisTop(x).ticks(10, "s"))
                 .append("text")
-                    .attr("x", 6)
-                    .attr("fill", "#000")
-                    .text("Streams");
+                .attr("x", 6)
+                .attr("fill", "#000")
+                .text("Streams");
 
             g.selectAll(".bar")
                 .data(this.barData)
                 .enter().append("rect")
                 .attr("class", "bar")
-                .attr("y", d => y(this.isSong? d.Track:d.Artist))
+                .attr("y", d => y(this.isSong ? d.Track : d.Artist))
                 .attr("x", x(0))
                 .attr("height", y.bandwidth())
                 .attr("width", d => x(d.totalPopularity));
@@ -392,42 +390,48 @@ const ComparisonCard = {
         Top10BarChartComponent
     },
     template: `
-                <div class="flex flex-col">
-                    <div class="info_card_header">Comparison Card</div>
+      <div class="flex flex-col">
+        <div class="info_card_header">Comparison Card</div>
 
-                  <div class="flex flex-row justify-between">
-                  <div class="flex-1">
-                    <SelectSearchComponent :searchData = "searchData"
-                                         @selected="selected1"></SelectSearchComponent>
-                    <RadarChartComponent v-if="maxTempo > 0"
-                        :data1="data1"
-                    :maxTempo="maxTempo"></RadarChartComponent>
-                  </div>
-                    <div class="flex-1">
-                      <InfoCardComponent  v-show="songData"
-                                        :data="data1"></InfoCardComponent>
-                    </div>
-                    <div class="flex-1">
-                      <div class="flex flex-col">
-                        <div id="song-barchart" class="flex-1">
-                          <Top10BarChartComponent
-                              :data="songData"
-                              :is-song="true"
-                              :component-id="song_barchart"
-                          ></Top10BarChartComponent>
-                        </div>
-                        <div id="artist-barchart" class="flex-1">
-                          <Top10BarChartComponent
-                              :data="songData"
-                              :is-song="false"
-                              :component-id="artist_barchart"
-                          ></Top10BarChartComponent>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                </div>`,
+        <div class="flex flex-row flex-wrap justify-evenly">
+          <div class="flex-1 shrink-0">
+            <div class="flex flex-col justify-center space-y-10">
+              <div class="border-2 rounded p-3 m-2 justify-center">
+            <SelectSearchComponent :searchData="searchData"
+                                   @selected="selected1"></SelectSearchComponent>
+              </div>
+              <div class="border-2-[#B6F2D0] bg-white rounded p-3 m-2">
+            <RadarChartComponent v-if="maxTempo > 0"
+                                 :data1="data1"
+                                 :maxTempo="maxTempo"></RadarChartComponent>
+              </div>
+              </div>
+          </div>
+          <div class="flex-1 shrink-0 min-w-500">
+            <InfoCardComponent v-show="songData"
+                               :data="data1"></InfoCardComponent>
+          </div>
+          <div class="flex-1 shrink-0">
+            <div class="flex flex-col justify-evenly">
+              <div id="song-barchart" class="flex-1 border-2 rounded p-3 m-2 ">
+                <Top10BarChartComponent
+                    :data="songData"
+                    :is-song="true"
+                    :component-id="song_barchart"
+                ></Top10BarChartComponent>
+              </div>
+              <div id="artist-barchart" class="flex-1 border-2 rounded p-3 m-2">
+                <Top10BarChartComponent
+                    :data="songData"
+                    :is-song="false"
+                    :component-id="artist_barchart"
+                ></Top10BarChartComponent>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>`,
     data() {
         return {
             selection1: {
@@ -450,7 +454,7 @@ const ComparisonCard = {
     },
     methods: {
         selected1(selected) {
-            if(JSON.stringify(selected) === '{}'){
+            if (JSON.stringify(selected) === '{}') {
                 this.selection1 = {
                     isSong: true,
                     idOrArtist: "0d28khcov6AiegSCpG5TuT"
@@ -462,8 +466,8 @@ const ComparisonCard = {
                 }
             }
         },
-        artist_info(artistData){
-            if (artistData === undefined){
+        artist_info(artistData) {
+            if (artistData === undefined) {
                 return undefined
             }
 
@@ -474,20 +478,20 @@ const ComparisonCard = {
                 Stream: artistData.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
                 Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
                 Likes: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0),
-                Comments: artistData.map(row =>parseInt( row.Comments)).reduce((acc, current) => acc + current, 0),
-                Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length,
+                Comments: artistData.map(row => parseInt(row.Comments)).reduce((acc, current) => acc + current, 0),
+                Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0) / artistData.length,
+                Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0) / artistData.length,
+                Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0) / artistData.length,
+                Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0) / artistData.length,
+                Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Genre: genreSet,
-                TopTrack: artistData.sort((a,b) => parseInt(b.Stream) + parseInt(b.Views) + parseInt(b.Likes) + parseInt(b.Comments)
+                TopTrack: artistData.sort((a, b) => parseInt(b.Stream) + parseInt(b.Views) + parseInt(b.Likes) + parseInt(b.Comments)
                     - parseInt(a.Stream) - parseInt(a.Views) - parseInt(a.Likes) - parseInt(a.Comments))[0].Track,
                 NumberOfTracks: artistData.length
 
             }
         },
-        getData(selection){
+        getData(selection) {
             let retrievedData
             if (selection.isSong) {
                 retrievedData = this.songData.find(row => row.track_id === selection.idOrArtist)
@@ -544,9 +548,9 @@ createApp({
     },
     template: `
       <div v-if="loading">Loading</div>
-    <div v-else>
+      <div v-else>
         <ComparisonCard :songData="dataset"></ComparisonCard>
-    </div>
+      </div>
     `,
     data() {
         return {
