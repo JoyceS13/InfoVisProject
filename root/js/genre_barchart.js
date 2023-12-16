@@ -1,4 +1,8 @@
 let highlighted = [];
+
+let bar_base_color = '#69b3a2';
+let bar_hover_color = '#589587';
+let bar_highlight_color = '#E0CB6C';
 function init_barChart(data) {
     let genres = new Set(data.map(d => d.track_genre));
 
@@ -63,17 +67,20 @@ function init_barChart(data) {
         d3.select(this)
             .attr('fill', 'transparent'); // Ensure the invisible rectangle stays transparent
         d3.select(`rect[data-genre="${d.genre}"]`) // Select the corresponding visible bar
-            .attr('fill', 'orange'); // Change color on hover
+            .attr('fill', bar_hover_color); // Change color on hover
         tooltipDiv.transition().duration(200).style('opacity', .9);
-        tooltipDiv.html(`Genre: ${d.genre}<br>Average Streams: ${d.avg.toLocaleString()}`)
+        tooltipDiv.html(`${d.genre}<br>Average Streams: ${d.avg.toLocaleString()}`)
             .style('left', (event.pageX + 5) + 'px')
             .style('top', (event.pageY - 28) + 'px');
     })
     .on('mouseout', function (event, d) {
         if(!highlighted.includes(d.genre)) {
             d3.select(`rect[data-genre="${d.genre}"]`) // Select the corresponding visible bar
-            .attr('fill', '#69b3a2'); // Revert color on mouseout
-        } 
+            .attr('fill', bar_base_color); // Revert color on mouseout
+        } else {
+            d3.select(`rect[data-genre="${d.genre}"]`) // Select the corresponding visible bar
+            .attr('fill', bar_highlight_color); // Revert color on mouseout
+        }
         
         tooltipDiv.style('opacity', 0);
         tooltipDiv.style('left', '-500px'); // Move the tooltip off-screen when it disappears
@@ -94,19 +101,21 @@ svg.selectAll('.visible-rect')
     .attr('y', d => yScale(d.avg))
     .attr('width', xScale.bandwidth())
     .attr('height', d => height - padding - yScale(d.avg / 1))
-    .attr('fill', '#69b3a2') // Adjust the color as needed
+    .attr('fill', bar_base_color) // Adjust the color as needed
     .on('mouseover', function (event, d) {
-        d3.select(this).attr('fill', 'orange'); // Change color on hover
+        d3.select(this).attr('fill', bar_hover_color); // Change color on hover
         tooltipDiv.transition().duration(200).style('opacity', .9);
-        tooltipDiv.html(`Genre: ${d.genre}<br>Average Streams: ${d.avg.toLocaleString()}`)
+        tooltipDiv.html(`${d.genre}<br>Average Streams: ${d.avg.toLocaleString()}`)
             .style('left', (event.pageX + 5) + 'px')
             .style('top', (event.pageY - 28) + 'px');
     })
     .on('mouseout', function (event, d) {
 
         if(!highlighted.includes(d.genre)) {
-            d3.select(this).attr('fill', '#69b3a2'); // Revert color on mouseout
-        } 
+            d3.select(this).attr('fill', bar_base_color); // Revert color on mouseout
+        }else {
+            d3.select(this).attr('fill', bar_highlight_color); // Revert color on mouseout
+        }
         tooltipDiv.style('opacity', 0);
         tooltipDiv.style('left', '-500px'); // Move the tooltip off-screen when it disappears
 
@@ -144,10 +153,10 @@ function highlightBars(genres) {
     highlighted = genres;
     // Reset all bars to default color
     d3.selectAll('.visible-rect')
-        .attr('fill', '#69b3a2');
+        .attr('fill', bar_base_color);
     genres.forEach(genre => {
     // Highlight the specified bars
     d3.select(`.visible-rect[data-genre="${genre}"]`)
-    .attr('fill', 'orange');
+    .attr('fill', bar_highlight_color);
     });
 }

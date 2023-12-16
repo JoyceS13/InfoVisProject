@@ -97,10 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
     width: 'resolve',
   });
 
-  // Event listener for genre selection change
   $('#items').on('change', function () {
     const selectedGenres = $(this).val();
     drawGenres(selectedGenres);
-    console.log('Items selected:', selectedGenres);
   });
 });
