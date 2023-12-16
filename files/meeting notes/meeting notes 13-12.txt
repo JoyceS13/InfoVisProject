@@ -1,0 +1,19 @@
+Meeting 13-12-2023
+
+Dashboard:
+-CSS
+-comparison
+	-max 200 items
+	-items sorted on popularity
+	-top 10 bar charts
+-genre charts
+	-switch to chart.js
+-create histogram
+-SPLOM
+	-combine density and brush
+	-make rectangle instead of square
+
+Report:
+-problem analysis
+-justification
+-evaluation
