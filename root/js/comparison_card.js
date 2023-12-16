@@ -27,7 +27,7 @@ const SelectSearchComponent = {
                @mousedown="optionClicked(item)"
                class="dropdown-item">
             <div v-if="item.isSong">
-              (Song) {{ item.artist }} - {{ item.track }}
+              (Song) {{ Array.from(item.artist).join(', ') }} - {{ item.track }}
             </div>
             <div v-else>
               (Artist) {{ item.artist }}
@@ -58,7 +58,7 @@ const SelectSearchComponent = {
             const filtered = [];
             const regOption = new RegExp(this.searchTerm, 'ig');
             for (const option of this.searchData) {
-                if (this.searchTerm.length < 1 || option.isSong? (option?.track + option?.artist).match(regOption): option.artist?.match(regOption)){
+                if (this.searchTerm.length < 1 || option.isSong? (option?.track + Array.from(option?.artist).join(' ')).match(regOption): option.artist?.match(regOption)){
                     filtered.push(option);
                 }
             }
@@ -180,13 +180,17 @@ const InfoCardComponent = {
                       <div class="info_card_header">{{ data.Track }}</div>
                       <div>
                           <div>Artist</div>
-                          <div>{{data.Artist}}</div>
+                          <div>{{Array.from(data.Artist).join(', ')}}</div>
                           <div>Album</div>
                             <div>{{data.Album}}</div>
                             <div>Key</div>
                             <div>{{data.Key}}</div>
                             <div>Tempo</div>
                             <div>{{data.Tempo}}</div>
+                            <div>Duration</div>
+                            <div>{{data.Duration}}</div>
+                            <div>Genres</div>
+                            <div>{{Array.from(data.Genre).join(', ')}}</div>
                             <div>Spotify streams</div>
                             <div>{{data.Stream}}</div>
                             <div>YouTube views</div>
@@ -202,6 +206,8 @@ const InfoCardComponent = {
                    <div v-if="!data.isSong">
                      <div class="info_card_header">{{data.Artist}}</div>
                      <div>
+                        <div>Genres:</div>
+                        <div>{{Array.from(data.Genre).join(', ')}}</div>
                         <div>Spotify streams:</div>
                         <div>{{data.Stream}} </div>
                         <div>YouTube views: </div>
@@ -250,13 +256,23 @@ const Top10BarChartComponent = {
             const popularityMap = new Map();
 
             // Iterate through the data and update the map
-            this.data.forEach(row => {
-                const key = this.isSong ? row.Track : row.Artist;
-                const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
+            if(this.isSong) {
+                this.data.forEach(row => {
+                    const key = row.Track
+                    const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
 
-                // Update the total popularity in the map
-                popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
-            });
+                    // Update the total popularity in the map
+                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
+                });
+            } else {
+                this.data.forEach(row => row.Artist.forEach(artist => {
+                    const key = artist
+                    const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
+
+                    // Update the total popularity in the map
+                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
+                }));
+            }
 
             // Convert the map entries to an array
             const sortedEntries = [...popularityMap.entries()]
@@ -402,8 +418,11 @@ const ComparisonCard = {
             if (artistData === undefined){
                 return undefined
             }
+
+            const genreSet = new Set()
+            artistData.forEach(row => row.Genre.forEach(genre => genreSet.add(genre)))
+
             return {
-                Artist: artistData[0].Artist,
                 Stream: artistData.map(row => parseInt(row.Stream)).reduce((acc, current) => acc + current, 0),
                 Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
                 Likes: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0),
@@ -413,7 +432,7 @@ const ComparisonCard = {
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Tempo: artistData.map(row => parseFloat(row.Tempo)).reduce((acc, current) => acc + current, 0)/artistData.length,
                 Loudness: artistData.map(row => parseFloat(row.Loudness)).reduce((acc, current) => acc + current, 0)/artistData.length,
-                Genre: new Set(artistData.map(row => row.Genre))
+                Genre: genreSet
             }
         },
         getData(selection){
@@ -422,8 +441,9 @@ const ComparisonCard = {
                 retrievedData = this.songData.find(row => row.track_id === selection.idOrArtist)
                 retrievedData.isSong = true
             } else {
-                const artistData = this.songData.filter(row => row.Artist === selection.idOrArtist)
+                const artistData = this.songData.filter(row => row.Artist.has(selection.idOrArtist))
                 retrievedData = this.artist_info(artistData)
+                retrievedData.Artist = selection.idOrArtist
                 retrievedData.isSong = false
             }
             return retrievedData
@@ -437,7 +457,7 @@ const ComparisonCard = {
         //generate search data
         //extract columns necessary to search for artists
         const artistSearchSet = new Set();
-        this.songData.forEach(row => artistSearchSet.add(row.Artist))
+        this.songData.forEach(row => row.Artist.forEach(artist => artistSearchSet.add(artist)))
         const artistSearchData = Array.from(artistSearchSet).map(item => {
             return {
                 artist: item,
@@ -516,7 +536,13 @@ createApp({
             const songs = new Set();
             data.forEach(row => songs.add(row.track_id));
             const songData = Array.from(songs).map(track_id => data.find(row => row.track_id === track_id));
-            songData.forEach(row => row.Genre = new Set(data.filter(row => row.track_id === row.track_id).map(row => row.Genre)));
+            songData.forEach(song => song.Genre = new Set(data.filter(row => row.track_id === song.track_id).map(r => r.track_genre)));
+            const artists = new Set();
+            songData.forEach(song => {
+                const artistSet = new Set();
+                data.filter(row => row.track_id === song.track_id).forEach(row => artistSet.add(row.Artist));
+                song.Artist = artistSet;
+            });
             return songData;
         }
     }
