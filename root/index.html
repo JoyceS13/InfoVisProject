@@ -17,21 +17,29 @@
     <!-- content -->
     <div id="comparison-card"></div>
 
-    <div id="genre_comparison">
-        <canvas id="genre_chart"></div>
-        <div id="genre_selector">
-            <div class="max-w-md mx-auto p-6 rounded-md shadow-md">
 
-                <form>
-                    <label for="items" class="block text-sm font-medium text-gray-600">Select 2-3 items:</label>
-                    <select id="items"multiple="multiple" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </select>
-                    <br>
-                </form>
-            
-            </div>
+    <!-- Genre comparison Radar -->
+    <div id="genre_comparison">
+        <canvas id="genre_chart">
+    </div>
+    <div id="genre_selector">
+        <div class="max-w-md mx-auto p-6 rounded-md shadow-md">
+
+            <form>
+                <label for="items" class="block text-sm font-medium text-gray-600">Select 2-3 items:</label>
+                <select id="items" multiple="multiple"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </select>
+                <br>
+            </form>
+
         </div>
     </div>
+    </div>
+
+    <!-- Genre Hist -->
+    <div id="genre_histogram"></div>
+
 
     <!-- vue framework -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -42,14 +50,15 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <!-- Select2 lib -->
-    
-<script type="module" src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script type="module" src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <!-- scripts -->
     <script src="js/d3init.js"></script>
     <script src="js/script.js"></script>
     <script src="js/comparison_card.js"></script>
     <script src="js/GenreComparisonChart.js"></script>
+    <script src="js/genre_barchart.js"></script>
 </body>
 
 </html>

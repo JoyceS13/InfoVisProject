@@ -4,7 +4,6 @@ let features = ["Danceability", "Energy", "Valence", "Loudness", "Tempo"];
 
 function drawWeighted(dataSet, color, name) {
   // Prepare data
-  const totalViews = dataSet.reduce((acc, d) => acc + d.Views, 0);
   const avgColumns = {};
 
   dataSet.forEach(row => {

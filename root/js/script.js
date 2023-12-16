@@ -1,3 +1,2 @@
 function optionChanged(isSong, idOrArtist){
-
 }
