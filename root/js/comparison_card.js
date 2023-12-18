@@ -292,23 +292,28 @@ const Top10BarChartComponent = {
             // Create a map to store total popularity for each track or artist
             const popularityMap = new Map();
 
-            // Iterate through the data and update the map
-            if (this.isSong) {
+            if(this.isSong) {
+                //store popularity of each track in popularityMap
                 this.data.forEach(row => {
                     const key = row.Track
-                    const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
+                    const popularity = parseInt(row.popularity);
 
                     // Update the total popularity in the map
                     popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
                 });
             } else {
-                this.data.forEach(row => row.Artist.forEach(artist => {
-                    const key = artist
-                    const popularity = parseInt(row.Stream) + parseInt(row.Views) + parseInt(row.Likes) + parseInt(row.Comments);
+                 // Create a set to store all artists
+                 const artistSet = new Set();
+                 this.data.forEach(row => row.Artist.forEach(artist => artistSet.add(artist)));
 
-                    // Update the total popularity in the map
-                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
-                }));
+                 //store popularity of each artist in popularityMap
+                    artistSet.forEach(artist => {
+                        const key = artist;
+                        const popularity = this.data.filter(row => row.Artist.has(artist)).map(row => parseInt(row.popularity)).reduce((acc, current) => acc + current, 0);
+
+                        // Update the total popularity in the map
+                        popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
+                })
             }
 
             // Convert the map entries to an array
@@ -363,7 +368,7 @@ const Top10BarChartComponent = {
                 .append("text")
                 .attr("x", 6)
                 .attr("fill", "#000")
-                .text("Streams");
+                .text("Popularity");
 
             g.selectAll(".bar")
                 .data(this.barData)
@@ -479,6 +484,7 @@ const ComparisonCard = {
                 Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
                 Likes: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0),
                 Comments: artistData.map(row => parseInt(row.Comments)).reduce((acc, current) => acc + current, 0),
+                Popularity: artistData.map(row => parseInt(row.Popularity)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0) / artistData.length,
@@ -599,6 +605,7 @@ createApp({
                 data.filter(row => row.track_id === song.track_id).forEach(row => artistSet.add(row.Artist));
                 song.Artist = artistSet;
             });
+            songData.forEach(song => song.popularity = parseInt(song.Stream) + parseInt(song.Views) + parseInt(song.Likes) + parseInt(song.Comments));
             return songData;
         }
     }
