@@ -21,7 +21,7 @@ const SelectSearchComponent = {
                @blur="exit()"
                @focus="showOptions()"
                @input="handleDebouncedInput"
-                class="object-fill">
+               class="object-fill">
         <div class="dropdown-content"
              v-show="optionsShown">
           <div v-if="searchTerm.length > 0" v-for="item in filteredData" :key="item.isSong? item.id:item.artist"
@@ -292,7 +292,7 @@ const Top10BarChartComponent = {
             // Create a map to store total popularity for each track or artist
             const popularityMap = new Map();
 
-            if(this.isSong) {
+            if (this.isSong) {
                 //store popularity of each track in popularityMap
                 this.data.forEach(row => {
                     const key = row.Track
@@ -302,17 +302,17 @@ const Top10BarChartComponent = {
                     popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
                 });
             } else {
-                 // Create a set to store all artists
-                 const artistSet = new Set();
-                 this.data.forEach(row => row.Artist.forEach(artist => artistSet.add(artist)));
+                // Create a set to store all artists
+                const artistSet = new Set();
+                this.data.forEach(row => row.Artist.forEach(artist => artistSet.add(artist)));
 
-                 //store popularity of each artist in popularityMap
-                    artistSet.forEach(artist => {
-                        const key = artist;
-                        const popularity = this.data.filter(row => row.Artist.has(artist)).map(row => parseInt(row.popularity)).reduce((acc, current) => acc + current, 0);
+                //store popularity of each artist in popularityMap
+                artistSet.forEach(artist => {
+                    const key = artist;
+                    const popularity = this.data.filter(row => row.Artist.has(artist)).map(row => parseInt(row.popularity)).reduce((acc, current) => acc + current, 0);
 
-                        // Update the total popularity in the map
-                        popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
+                    // Update the total popularity in the map
+                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
                 })
             }
 
@@ -335,7 +335,7 @@ const Top10BarChartComponent = {
         createBarChart() {
 
             const svg_width = 400;
-            const svg_height = 175;
+            const svg_height = 200;
             const component = `#${this.componentId}`
 
             const svg = d3.select(component).select(".top10_bar_chart")
@@ -343,7 +343,7 @@ const Top10BarChartComponent = {
                 .attr("width", svg_width)
                 .attr("height", svg_height)
 
-            const margin = {top: 20, right: 20, bottom: 30, left: 100};
+            const margin = {top: 35, right: 20, bottom: 30, left: 100};
             const width = svg_width - margin.left - margin.right;
             const height = svg_height - margin.top - margin.bottom;
 
@@ -360,7 +360,11 @@ const Top10BarChartComponent = {
 
             g.append("g")
                 .attr("class", "axis axis--y")
-                .call(d3.axisLeft(y));
+                .call(d3.axisLeft(y))
+                .style("object-position", "left")
+                .selectAll(".tick text")  // Select all y-axis tick labels
+                .style("object-position", "left")
+                .call(this.wrap, margin.left);  // Call the wrap function for word wrapping
 
             g.append("g")
                 .attr("class", "axis axis--x")
@@ -368,7 +372,8 @@ const Top10BarChartComponent = {
                 .append("text")
                 .attr("x", 6)
                 .attr("fill", "#000")
-                .text("Popularity");
+                .text("Popularity")
+                .attr("transform", "translate(0,-25)");
 
             g.selectAll(".bar")
                 .data(this.barData)
@@ -379,7 +384,41 @@ const Top10BarChartComponent = {
                 .attr("height", y.bandwidth())
                 .attr("width", d => x(d.totalPopularity));
 
+
             this.barChart = svg;
+        },
+        // Add y-axis labels with wrapping
+        wrap(text, width) {
+            text.each(function () {
+                const label = d3.select(this);
+                const words = label.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                const lineHeight = 1.1; // ems
+                const y = label.attr("y");
+                const dy = parseFloat(label.attr("dy"));
+                ///to make the text not overlap the ticks
+                const rightMargin = 10;
+                let tspan = label.text(null)
+                    .append("tspan")
+                    .attr("width", width)
+                    .attr("x", -rightMargin)
+                    .attr("y", y)
+                    .attr("dy", dy + "em")
+                    .style("object-position", "left")
+
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width && line.length > 1) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        tspan.attr("dy",-0.5*lineHeight+ "em")
+                        line = [word];
+                        tspan = label.append("tspan").attr("x", -rightMargin).attr("y", y).attr("dy", lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
         }
     },
     mounted() {
@@ -402,15 +441,15 @@ const ComparisonCard = {
           <div class="flex-1 shrink-0">
             <div class="flex flex-col justify-center space-y-10">
               <div class="border-2 rounded p-3 m-2 justify-center">
-            <SelectSearchComponent :searchData="searchData"
-                                   @selected="selected1"></SelectSearchComponent>
+                <SelectSearchComponent :searchData="searchData"
+                                       @selected="selected1"></SelectSearchComponent>
               </div>
-              <div class="border-2-[#B6F2D0] bg-white rounded p-3 m-2">
-            <RadarChartComponent v-if="maxTempo > 0"
-                                 :data1="data1"
-                                 :maxTempo="maxTempo"></RadarChartComponent>
+              <div class="border-2 border-[#C2A0D9] bg-white rounded p-3 m-2">
+                <RadarChartComponent v-if="maxTempo > 0"
+                                     :data1="data1"
+                                     :maxTempo="maxTempo"></RadarChartComponent>
               </div>
-              </div>
+            </div>
           </div>
           <div class="flex-1 shrink-0 min-w-500">
             <InfoCardComponent v-show="songData"
@@ -558,15 +597,18 @@ createApp({
         <ComparisonCard :songData="dataset"></ComparisonCard>
       </div>
     `,
-    data() {
+    data
+        () {
         return {
             dataset: null,
             loading: true,
         };
-    },
+    }
+    ,
     async mounted() {
         await this.loadDataset();
-    },
+    }
+    ,
     methods: {
         async loadDataset() {
             // Check if window.dataset is already defined
@@ -592,7 +634,8 @@ createApp({
             });
 
 
-        },
+        }
+        ,
         // Remove duplicate rows
         cleanData(data) {
             const songs = new Set();
@@ -605,7 +648,7 @@ createApp({
                 data.filter(row => row.track_id === song.track_id).forEach(row => artistSet.add(row.Artist));
                 song.Artist = artistSet;
             });
-            songData.forEach(song => song.popularity = parseInt(song.Stream) + parseInt(song.Views) + parseInt(song.Likes) + parseInt(song.Comments));
+            songData.sort((a, b) => b.popularity - a.popularity);
             return songData;
         }
     }
