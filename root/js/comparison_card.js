@@ -196,29 +196,27 @@ const InfoCardComponent = {
       <div v-else class="flex flex-col min-w-full">
         <div v-if="data.isSong" class="flex flex-col min-w-400">
           <div class="info_card_header text-xl min-w-full">{{ data.Track }}</div>
-          <div class="flex flex-row grid gap-4 grid-cols-2 justify-between grow-1">
-            <div class="min-w-max">
-              <div>Artist</div>
-              <div>Album</div>
-              <div>Key</div>
-              <div>Tempo</div>
-              <div>Duration</div>
-              <div>Genres</div>
-              <div class="break-normal whitespace-normal">Spotify streams</div>
-              <div class="break-normal whitespace-normal">YouTube views</div>
-              <div class="break-normal whitespace-normal">YouTube interactions</div>
-            </div>
-            <div class="min-w-max">
+          <div class="grid gap-0.5 grid-cols-2  grid-rows-10 whitespace-normal auto-rows-min object-left">
+              <div>Artist:</div>
               <div>{{ Array.from(data.Artist).join(', ') }}</div>
+              <div>Album:</div>
               <div>{{ data.Album }}</div>
-              <div>{{ data.Key }}</div>
-              <div>{{ data.Tempo }}</div>
-              <div>{{ data.Duration_ms }}</div>
+              <div>Key:</div>
+              <div>{{ key }}</div>
+              <div>Tempo:</div>
+              <div>{{ tempo }}</div>
+              <div>Duration:</div>
+              <div>{{ duration }}</div>
+              <div>Genres:</div>
               <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
-              <div>{{ data.Stream }}</div>
-              <div>{{ data.Views }}</div>
-              <div>{{ interactions }}</div>
-            </div>
+              <div >Spotify streams:</div>
+              <div>{{ streams}}</div>
+              <div >YouTube views:</div>
+              <div>{{ views }}</div>
+              <div >YouTube interactions:</div>
+              <div class="align-middle">{{ interactions }}</div>
+              <div>Total popularity:</div>
+              <div>{{ popularity }}</div>
           </div>
           <div class="flex flex-row space-x-2 justify-center mt-4 h-8">
             <div class="h-fit">
@@ -233,25 +231,23 @@ const InfoCardComponent = {
             </div>
           </div>
         </div>
-        <div v-if="!data.isSong">
+        <div v-if="!data.isSong" class="flex flex-col min-w-400">
           <div class="info_card_header text-xl ">{{ data.Artist }}</div>
-          <div class="grid grid-cols-2">
-            <div>
+          <div class="grid grid-cols-2 grid-rows-7 gap-0.5 whitespace-normal auto-rows-min align-middle">
               <div>Number of tracks:</div>
-              <div>Top track:</div>
-              <div>Genres:</div>
-              <div class="break-normal whitespace-normal">Spotify streams:</div>
-              <div class="break-normal whitespace-normal">YouTube views:</div>
-              <div class="break-normal whitespace-normal">YouTube interactions:</div>
-            </div>
-            <div>
               <div>{{ data.NumberOfTracks }}</div>
+              <div>Top track:</div>
               <div>{{ data.TopTrack }}</div>
+              <div>Genres:</div>
               <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
-              <div>{{ data.Stream }}</div>
-              <div>{{ data.Views }}</div>
+              <div >Spotify streams:</div>
+              <div>{{ streams }}</div>
+              <div >YouTube views:</div>
+              <div>{{ views }}</div>
+              <div >YouTube interactions:</div>
               <div> {{ interactions }}</div>
-            </div>
+                <div>Total popularity:</div>
+              <div>{{ popularity }}</div>
           </div>
         </div>
 
@@ -262,7 +258,61 @@ const InfoCardComponent = {
             if (this.data === undefined) {
                 return undefined
             }
-            return parseInt(this.data.Likes) + parseInt(this.data.Comments)
+            return this.formatNumber(parseInt(this.data.Likes) + parseInt(this.data.Comments))
+        },
+        streams() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            return this.formatNumber(parseInt(this.data.Stream))
+        },
+        views() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            return this.formatNumber(parseInt(this.data.Views))
+        },
+        popularity() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            return this.formatNumber(parseInt(this.data.popularity))
+        },
+        key() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            const formatKey = d3.format("d")
+            return formatKey(this.data.Key)
+        },
+        tempo() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            const formatTempo = d3.format(".1f")
+            return formatTempo(this.data.Tempo)
+        },
+        duration() {
+            if (this.data === undefined) {
+                return undefined
+            }
+            const formatTime = d3.timeFormat("%-M min %-S sec");
+            return formatTime(new Date(parseInt(this.data.Duration_ms)))
+        }
+    },
+    methods: {
+        formatNumber(value) {
+            const customFormat = d3.format(".3~s"); // Use ~ to suppress trailing zeros
+
+                if (value >= 1e9) {
+                    return customFormat(value / 1e9) + " B";
+                } else if (value >= 1e6) {
+                    return customFormat(value / 1e6) + " M";
+                } else if (value >= 1e3) {
+                    return customFormat(value / 1e3) + " K";
+                } else {
+                    return customFormat(value);
+                }
         }
     }
 }
@@ -351,9 +401,12 @@ const Top10BarChartComponent = {
                 .style("object-position", "left")
                 .call(this.wrap, margin.left);  // Call the wrap function for word wrapping
 
+            //use billion instead of giga
+            const formatAxis = d3.format(".1~s");
+
             g.append("g")
                 .attr("class", "axis axis--x")
-                .call(d3.axisTop(x).ticks(10, "s"))
+                .call(d3.axisTop(x).ticks(10, "s").tickFormat(d => formatAxis(d/1e9) + "B"))
                 .append("text")
                 .attr("x", 6)
                 .attr("fill", "#000")
@@ -521,7 +574,7 @@ const ComparisonCard = {
                 Views: artistData.map(row => parseInt(row.Views)).reduce((acc, current) => acc + current, 0),
                 Likes: artistData.map(row => parseInt(row.Likes)).reduce((acc, current) => acc + current, 0),
                 Comments: artistData.map(row => parseInt(row.Comments)).reduce((acc, current) => acc + current, 0),
-                Popularity: artistData.map(row => parseInt(row.Popularity)).reduce((acc, current) => acc + current, 0) / artistData.length,
+                popularity: artistData.map(row => parseInt(row.popularity)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Danceability: artistData.map(row => parseFloat(row.Danceability)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Energy: artistData.map(row => parseFloat(row.Energy)).reduce((acc, current) => acc + current, 0) / artistData.length,
                 Valence: artistData.map(row => parseFloat(row.Valence)).reduce((acc, current) => acc + current, 0) / artistData.length,
