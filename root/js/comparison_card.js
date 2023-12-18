@@ -267,6 +267,37 @@ const InfoCardComponent = {
     }
 }
 
+const PopularityScoreComponent = {
+    template: `
+      <div class=" space-y-1.5 text-center">
+        <div class="text-xs"> This {{ isSong ? "track" : "artist" }} is more popular than</div>
+        <div class="text-4xl"> {{ score }}</div>
+        <div class="text-xs">of all {{ isSong ? "tracks" : "artists" }}.</div>
+      </div>`,
+    props: {
+        songData: Object,
+        artistData: Object,
+        isSong: Boolean,
+        idOrArtist: String
+    },
+    computed: {
+        score() {
+            if (this.songData === undefined || this.artistData === undefined || this.idOrArtist === undefined) {
+                return -1
+            } else {
+                console.log(this.idOrArtist)
+                if (this.isSong) {
+                    const index = this.songData.findIndex(row => row.track_id === this.idOrArtist)
+                    return d3.format(".0%")(index / this.songData.length)
+                } else {
+                    const index = this.artistData.findIndex(row => row.Artist === this.idOrArtist)
+                    return d3.format(".0%")(index / this.artistData.length)
+                }
+            }
+        }
+    }
+}
+
 const Top10BarChartComponent = {
     template: `
       <div>
@@ -282,54 +313,6 @@ const Top10BarChartComponent = {
         data: Object,
         isSong: Boolean,
         componentId: String
-    },
-    computed: {
-        barData() {
-            if (this.data === undefined) {
-                return [];
-            }
-
-            // Create a map to store total popularity for each track or artist
-            const popularityMap = new Map();
-
-            if (this.isSong) {
-                //store popularity of each track in popularityMap
-                this.data.forEach(row => {
-                    const key = row.Track
-                    const popularity = parseInt(row.popularity);
-
-                    // Update the total popularity in the map
-                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
-                });
-            } else {
-                // Create a set to store all artists
-                const artistSet = new Set();
-                this.data.forEach(row => row.Artist.forEach(artist => artistSet.add(artist)));
-
-                //store popularity of each artist in popularityMap
-                artistSet.forEach(artist => {
-                    const key = artist;
-                    const popularity = this.data.filter(row => row.Artist.has(artist)).map(row => parseInt(row.popularity)).reduce((acc, current) => acc + current, 0);
-
-                    // Update the total popularity in the map
-                    popularityMap.set(key, Math.max((popularityMap.get(key) || 0), popularity));
-                })
-            }
-
-            // Convert the map entries to an array
-            const sortedEntries = [...popularityMap.entries()]
-                .sort((a, b) => b[1] - a[1]) // Sort by total popularity in descending order
-
-            // Convert the sorted entries back to an array of objects
-            const result = sortedEntries.map(([key, totalPopularity]) => {
-                return {
-                    [this.isSong ? 'Track' : 'Artist']: key,
-                    'totalPopularity': totalPopularity
-                };
-            });
-
-            return result.slice(0, 5);
-        }
     },
     methods: {
         createBarChart() {
@@ -349,11 +332,13 @@ const Top10BarChartComponent = {
 
             const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+            const barData = this.data.slice(0, 5)
+
             const y = d3.scaleBand()
-                .domain(this.barData.map(d => this.isSong ? d.Track : d.Artist))
+                .domain(barData.map(d => this.isSong ? d.Track : d.Artist))
                 .rangeRound([0, height]).padding(0.1)
             const x = d3.scaleLinear()
-                .domain([0, d3.max(this.barData, d => d.totalPopularity)])
+                .domain([0, d3.max(barData, d => d.popularity)])
                 .range([0, width]);
 
             //TODO: fix axis labels
@@ -376,13 +361,13 @@ const Top10BarChartComponent = {
                 .attr("transform", "translate(0,-25)");
 
             g.selectAll(".bar")
-                .data(this.barData)
+                .data(barData)
                 .enter().append("rect")
                 .attr("class", "bar")
                 .attr("y", d => y(this.isSong ? d.Track : d.Artist))
                 .attr("x", x(0))
                 .attr("height", y.bandwidth())
-                .attr("width", d => x(d.totalPopularity));
+                .attr("width", d => x(d.popularity));
 
 
             this.barChart = svg;
@@ -413,7 +398,7 @@ const Top10BarChartComponent = {
                     if (tspan.node().getComputedTextLength() > width && line.length > 1) {
                         line.pop();
                         tspan.text(line.join(" "));
-                        tspan.attr("dy",-0.5*lineHeight+ "em")
+                        tspan.attr("dy", -0.5 * lineHeight + "em")
                         line = [word];
                         tspan = label.append("tspan").attr("x", -rightMargin).attr("y", y).attr("dy", lineHeight + dy + "em").text(word);
                     }
@@ -431,20 +416,21 @@ const ComparisonCard = {
         SelectSearchComponent,
         RadarChartComponent,
         InfoCardComponent,
-        Top10BarChartComponent
+        Top10BarChartComponent,
+        PopularityScoreComponent
     },
     template: `
       <div class="flex flex-col">
         <div class="info_card_header">Comparison Card</div>
 
-        <div class="flex flex-row flex-wrap justify-evenly">
+        <div class="flex flex-row flex-wrap justify-between">
           <div class="flex-1 shrink-0">
-            <div class="flex flex-col justify-center space-y-10">
-              <div class="border-2 rounded p-3 m-2 justify-center">
+            <div class="flex flex-col justify-between ">
+              <div class="border-2 rounded p-3 m-2">
                 <SelectSearchComponent :searchData="searchData"
                                        @selected="selected1"></SelectSearchComponent>
               </div>
-              <div class="border-2 border-[#C2A0D9] bg-white rounded p-3 m-2">
+              <div class="border-2 border-color-purple bg-white rounded p-3 m-2">
                 <RadarChartComponent v-if="maxTempo > 0"
                                      :data1="data1"
                                      :maxTempo="maxTempo"></RadarChartComponent>
@@ -452,23 +438,34 @@ const ComparisonCard = {
             </div>
           </div>
           <div class="flex-1 shrink-0 min-w-500">
-            <InfoCardComponent v-show="songData"
-                               :data="data1"></InfoCardComponent>
+            <div class="flex flex-col justify-between">
+              <div class="border-2 rounded p-3 m-2">
+                <InfoCardComponent v-show="songData"
+                                   :data="data1"></InfoCardComponent>
+              </div>
+              <div class="border-2 rounded p-5 m-2">
+                <PopularityScoreComponent v-show="songData"
+                                          :songData="songData"
+                                          :artistData="artistPopularityData"
+                                          :isSong="selection1.isSong"
+                                          :id-or-artist="selection1.idOrArtist"></PopularityScoreComponent>
+              </div>
+            </div>
           </div>
           <div class="flex-1 shrink-0">
             <div class="flex flex-col justify-evenly">
               <div id="song-barchart" class="flex-1 border-2 rounded p-3 m-2 ">
-                <Top10BarChartComponent
-                    :data="songData"
-                    :is-song="true"
-                    :component-id="song_barchart"
+                <Top10BarChartComponent v-show="songData"
+                                        :data="songData"
+                                        :is-song="true"
+                                        :component-id="song_barchart"
                 ></Top10BarChartComponent>
               </div>
               <div id="artist-barchart" class="flex-1 border-2 rounded p-3 m-2">
-                <Top10BarChartComponent
-                    :data="songData"
-                    :is-song="false"
-                    :component-id="artist_barchart"
+                <Top10BarChartComponent v-if="artistPopularityData !== undefined"
+                                        :data="artistPopularityData"
+                                        :is-song="false"
+                                        :component-id="artist_barchart"
                 ></Top10BarChartComponent>
               </div>
             </div>
@@ -485,7 +482,8 @@ const ComparisonCard = {
             maxTempo: 0,
             searchData: undefined,
             song_barchart: "song-barchart",
-            artist_barchart: "artist-barchart"
+            artist_barchart: "artist-barchart",
+            artistPopularityData: undefined
         }
     },
     props: {
@@ -583,6 +581,19 @@ const ComparisonCard = {
             ...artistSearchData,
             ...songSearchData
         ]
+
+        //generate artist data
+        this.artistPopularityData = []
+        artistSearchSet.forEach(artist => {
+            const popularity = this.songData
+                .filter(row => row.Artist.has(artist))
+                .map(row => parseInt(row.popularity))
+                .reduce((acc, current) => acc + current, 0);
+
+            // Push data for each artist to the artistData array
+            this.artistPopularityData.push({Artist: artist, popularity: popularity});
+        });
+        this.artistPopularityData.sort((a, b) => b.popularity - a.popularity);
     }
 
 }

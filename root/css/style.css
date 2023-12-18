@@ -23,24 +23,20 @@ body {
     background-color: var(--color-4);
 }
 
-.bg-color-1 {
-    background-color: var(--color-1);
+.border-color-purple {
+    border-color: var(--color-1);
 }
 
-.bg-color-2 {
-    background-color: var(--color-2);
+.border-color-green {
+    border-color: var(--color-2);
 }
 
-.bg-color-3 {
-    background-color: var(--color-3);
+.border-color-yellow {
+    border-color: var(--color-3);
 }
 
-.bg-color-4 {
-    background-color: var(--color-4);
-}
-
-.bg-color-5 {
-    background-color: var(--color-5);
+.border-color-red {
+    border-color: var(--color-5);
 }
 
 .color-1 {
