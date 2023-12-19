@@ -15,7 +15,6 @@ export const RadarChartComponent = {
             if (this.data1 === undefined) {
                 return [0, 0, 0, 0, 0]
             }
-            console.log(this.data1.Tempo)
             return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, (parseFloat(this.data1.Tempo) / this.maxTempo), this.loudnessMap(parseFloat(this.data1.Loudness))]
         }
     },
