@@ -4,26 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <title>InfoVis</title>
-    <!-- stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
     <!-- tailwind -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <!-- Include Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
-<body>
+<body class="p-6">
     <!-- content -->
     <div id="comparison-card"></div>
 
 
     <!-- Genre comparison Radar -->
     <div id="genre_comparison">
-        <canvas id="genre_chart">
-    </div>
-    <div id="genre_selector">
-        <div class="max-w-md mx-auto p-6 rounded-md shadow-md">
+        <canvas id="genre_chart"> </canvas>
+        <div id="genre_selector">
+            <div class="max-w-md mx-auto p-6 rounded-md shadow-md">
 
             <form>
                 <label for="items" class="block text-sm font-medium text-gray-600">Select 2-3 items:</label>
@@ -56,7 +55,13 @@
     <!-- scripts -->
     <script src="js/d3init.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/comparison_card.js"></script>
+    <script src="js/Comparison_Card_Components/select_search_component.js" type="module"></script>
+    <script src="js/Comparison_Card_Components/radar_chart_component.js" type="module"></script>
+    <script src="js/Comparison_Card_Components/info_card_component.js" type="module"></script>
+    <script src="js/Comparison_Card_Components/popularity_score_component.js" type="module"></script>
+    <script src="js/Comparison_Card_Components/bar_chart_component.js" type="module"></script>
+    <script src="js/Comparison_Card_Components/comparison_card_component.js" type="module"></script>
+    <script src="js/comparison_card.js" type="module"></script>
     <script src="js/GenreComparisonChart.js"></script>
     <script src="js/genre_barchart.js"></script>
 </body>
