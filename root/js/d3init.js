@@ -8,6 +8,7 @@ function initialize() {
             // Log data 
             window.dataset = data
             initGenreGraph(data);
+            init_barChart(data);
             return data;
         })
         .catch(function (error) {
