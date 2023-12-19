@@ -1,7 +1,27 @@
 var width = 1000,
     size = 300,
     padding = 40;
+// Append "Show by genre" checkbox
+var checkboxDiv = d3.select("body")
+  .append("div");
 
+checkboxDiv.append("input")
+  .attr("type", "checkbox")
+  .attr("id", "showByGenreCheckbox")
+  .on("change", function() {
+    // Get the checkbox value (checked or unchecked)
+    var isChecked = d3.select(this).property("checked");
+    // Perform actions based on the checkbox value
+    console.log("Show by genre:", isChecked);
+    // Implement logic to update the plots based on the checkbox value
+  });
+
+// checkboxDiv.append("label")
+//   .attr("for", "showByGenreCheckbox")
+//   .text("Show by genre");
+
+
+  
 d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
     domainByTrait = {}
     data.forEach(function(d) {
@@ -44,8 +64,12 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
         var y = d3.scaleLinear()
             .range([size - padding / 2 - 10, padding / 2]);
         var cell = d3.select(this);
-        x.domain(domainByTrait[p.x]).range([padding, size - padding]).nice();
-        y.domain(domainByTrait[p.y]).range([padding, size - padding]);
+
+        //xAxis
+        var xAxis = x.domain(domainByTrait[p.x]).range([padding, size - padding]).nice();
+        
+        //yAxis
+        var yAxis = y.domain(domainByTrait[p.y]).range([padding, size - padding]);
 
         // Append x-axis label
         cell.append("text")
@@ -64,16 +88,19 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
             .attr("y", - padding / 2)
             .text(p.y);
 
-        cell.append("g")
+        var xAx = cell.append("g")
             .attr("transform", `translate(0, ${size - padding / 3})`)
             .call(d3.axisBottom(x).ticks(4).tickFormat(d3.format(".1")));
-        cell.append("g")
+        var yAx = cell.append("g")
             .attr("transform", `translate(${padding / 2}, 0)`)
             .call(d3.axisLeft(y).ticks(5));
 
-            var color = d3.scaleSequentialLog(d3.interpolateViridis)
-            .domain([.1, 15]);
-
+            // var color = d3.scaleSequentialLog(d3.interpolateViridis)
+            // .domain([.1, 15]);
+            var color = d3.scaleLinear()
+              .domain([0.01, 10]) // Assuming the range of your density values
+              .range(["#8ABF9C", "#F2D750"]); // Define your desired color range
+          
         const densityData = d3.contourDensity()
             .x(function(d) { return x(d[p.x]); })
             .y(function(d) { return y(d[p.y]); })
@@ -88,7 +115,94 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
             .attr("transform", "translate(" + padding + "," + padding / 2 + ")") // Adjusted translate
             .attr("d", d3.geoPath())
             .attr("fill", function(d) { return color(d.value); });
+    
+        
+        var brush = d3.brush()
+            .extent([[padding, padding], [size - padding, size - padding]])
+            .on("end", brushed);
+        
+        
+        
+            // Append brush to the plot
+        // const brushGroup = cell.append("g")
+        //   .attr("class", "brush")
+        //   .call(brush);
+
+
+        cell.append("g")
+            .attr("class", "brush")
+            .call(brush);
+      
+        function brushed(event) {
+          var extent = event.selection;
+          if (extent) {
+              var [[x0, y0], [x1, y1]] = extent;
+  
+              // Update x and y domains based on brush extent
+              var xDomainNew = [x.invert(x0), x.invert(x1)];
+              var yDomainNew = [y.invert(y0), y.invert(y1)];
+  
+              // Update the scales with new domains
+              x.domain(xDomainNew);
+              y.domain(yDomainNew);
+  
+              // Transition the axis to reflect the new domain
+              cell.select(".x").transition().duration(1000).call(d3.axisBottom(x));
+              cell.select(".y").transition().duration(1000).call(d3.axisLeft(y));
+  
+              // Recalculate densityData based on updated domains
+              const updatedDensityData = d3.contourDensity()
+                  .x(function(d) { return x(d[p.x]); })
+                  .y(function(d) { return y(d[p.y]); })
+                  .size([size, size])
+                  .bandwidth(4)
+                  (data);
+  
+              // Remove existing paths
+              cell.selectAll("path").remove();
+  
+              // Enter new paths for updated density data
+              cell.selectAll("path")
+                  .data(updatedDensityData)
+                  .enter().append("path")
+                  .attr("transform", "translate(" + padding + "," + padding / 2 + ")")
+                  .attr("d", d3.geoPath())
+                  .attr("fill", function(d) { return color(d.value); });
+          }
+        
+       else {
+        // When there's no selection, zoom back out to original scale
+
+        // Reset the scales to their original domains
+        x.domain(domainByTrait[p.x]).nice();
+        y.domain(domainByTrait[p.y]).nice();
+
+        // Transition the axis to reflect the original domain
+        cell.select(".x").transition().duration(1000).call(d3.axisBottom(x));
+        cell.select(".y").transition().duration(1000).call(d3.axisLeft(y));
+
+        // Recalculate densityData based on original domains
+        const updatedDensityData = d3.contourDensity()
+            .x(function(d) { return x(d[p.x]); })
+            .y(function(d) { return y(d[p.y]); })
+            .size([size, size])
+            .bandwidth(4)
+            (data);
+
+        // Remove existing paths
+        cell.selectAll("path").remove();
+
+        // Enter new paths for updated density data
+        cell.selectAll("path")
+            .data(updatedDensityData)
+            .enter().append("path")
+            .attr("transform", "translate(" + padding + "," + padding / 2 + ")")
+            .attr("d", d3.geoPath())
+            .attr("fill", function(d) { return color(d.value); });
     }
+
+    } 
+  }
 });
 
 function cross(a, b) {
@@ -97,21 +211,3 @@ function cross(a, b) {
     return c;
 }
 
-// Define an array of music genres
-var musicGenres = ['Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Jazz', 'Country'];
-
-// Append a select element for the dropdown menu
-var dropdown = d3.select("#genreDropdown").on("change", function() {
-    // Get the selected genre
-    var selectedGenre = d3.select(this).property("value");
-    // Perform actions based on the selected genre (you can update the plots accordingly)
-    console.log("Selected Genre:", selectedGenre);
-    // Implement logic to update the plots based on the selected genre
-});
-
-// Add options to the dropdown menu
-dropdown.selectAll("option")
-    .data(musicGenres)
-    .enter().append("option")
-    .attr("value", function(d) { return d; })
-    .text(function(d) { return d; });
