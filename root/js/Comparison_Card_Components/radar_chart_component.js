@@ -15,7 +15,6 @@ export const RadarChartComponent = {
             if (this.data1 === undefined) {
                 return [0, 0, 0, 0, 0]
             }
-            console.log(this.data1.Tempo)
             return [this.data1.Danceability, this.data1.Energy, this.data1.Valence, (parseFloat(this.data1.Tempo) / this.maxTempo), this.loudnessMap(parseFloat(this.data1.Loudness))]
         }
     },
@@ -66,8 +65,8 @@ export const RadarChartComponent = {
                     labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
                     datasets: [{
                         label: this.data1?.Track,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: ' rgba(194, 160, 217, 0.2)', //color of border with 0.2 opacity
+                        borderColor: '#C2A0D9',
                         borderWidth: 2,
                         data: this.radarData1
                     }]

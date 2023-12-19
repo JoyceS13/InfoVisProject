@@ -1,9 +1,9 @@
 export const Top10BarChartComponent = {
     template: `
-      <div class="max-h-56">
+      <div class="max-h-52">
         <div class="text-xl">Top 20 {{ isSong ? "Songs":"Artists" }}</div>
-        <div class="tooltip absolute text-xs bg-white bg-opacity-60 rounded-md z-50"></div>
-        <div class="top10_bar_chart max-h-52 overflow-auto bg-white"></div>
+        <div class="tooltip absolute text-xs bg-white bg-opacity-60 rounded-md z-50 p-1"></div>
+        <div class="top10_bar_chart max-h-48 overflow-auto bg-white"></div>
       </div>`,
     data() {
         return {
@@ -53,11 +53,10 @@ export const Top10BarChartComponent = {
                 .range([0, width]);
 
             g.append("g")
-                .attr("class", "axis axis--y")
+                .attr("class", "axis axis--y z-40")
                 .call(d3.axisLeft(y))
                 .style("object-position", "left")
                 .selectAll(".tick text")  // Select all y-axis tick labels
-                .style("object-position", "left")
                 .call(this.wrap, margin.left-8);  // Call the wrap function for word wrapping
 
 
@@ -82,11 +81,12 @@ export const Top10BarChartComponent = {
                 .attr("class", "bar")
                 .attr("y", d => y(this.isSong ? d.Track : d.Artist))
                 .attr("x", x(0))
+                .attr("fill", "rgba(138, 191, 156, 0.8)")
                 .attr("height", y.bandwidth())
                 .attr("width", d => x(d.popularity))
                 .on("mouseover", function (event, d) {
                     // Change color and show tooltip on hover
-                    d3.select(this).attr("fill", "#a2c8b3");
+                    d3.select(this).attr("fill", "rgba(138, 191, 156, 0.4)");
 
                     // Display tooltip
                     d3.select(component).select(".tooltip").html(`${d.Track || d.Artist}<br>Click to take a closer look`)
@@ -95,13 +95,14 @@ export const Top10BarChartComponent = {
                 })
                 .on("mouseout", function () {
                     // Reset color and hide tooltip on mouseout
-                    d3.select(this).attr("fill", "#000");
+                    d3.select(this).attr("fill", "rgba(138, 191, 156, 0.8)");
 
                     // Hide tooltip
                     d3.select(component).select(".tooltip").style("visibility", "hidden");
                 })
                 .on("click", (event, d) => {
                     // Emit the id or artist when a bar is clicked
+                    optionChanged(this.isSong, this.isSong ? d.track_id : d.Artist);
                     this.$emit("barClick", this.isSong ? d.track_id : d.Artist);
                 });
 

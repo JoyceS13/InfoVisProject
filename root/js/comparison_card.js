@@ -28,7 +28,7 @@ createApp({
         async loadDataset() {
             // Check if window.dataset is already defined
             if (window.dataset) {
-                const loadedData = window.dataset;
+                const loadedData = JSON.parse(JSON.stringify(window.dataset));
                 this.dataset = this.cleanData(loadedData);
                 this.loading = false;
             }
@@ -37,7 +37,7 @@ createApp({
             await new Promise((resolve) => {
                 const checkDataset = () => {
                     if (window.dataset) {
-                        const loadedData = window.dataset;
+                        const loadedData = JSON.parse(JSON.stringify(window.dataset));
                         this.dataset = this.cleanData(loadedData);
                         this.loading = false;
                         resolve();
