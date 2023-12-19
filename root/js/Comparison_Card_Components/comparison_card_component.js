@@ -14,27 +14,27 @@ export const ComparisonCard = {
     },
     template: `
       <div class="flex flex-row flex-wrap justify-between">
-        <div class="flex-1 max-w-72">
-          <div class="flex flex-col justify-between ">
-            <div class="border-2 rounded-md p-3 m-2">
+        <div class="flex-1 max-w-72 shrink-1">
+          <div class="flex flex-col justify-between">
+            <div class="border-2 rounded-md p-3 m-2 bg-color-purple border-color-purple">
               <SelectSearchComponent :searchData="searchData"
                                      :clear="clear"
                                      @selected="selected1"></SelectSearchComponent>
             </div>
-            <div class="border-2 border-color-purple bg-white rounded-md p-3 m-2">
+            <div class="border-4 border-color-purple bg-white rounded-md p-3 m-2">
               <RadarChartComponent v-if="maxTempo > 0"
                                    :data1="data1"
                                    :maxTempo="maxTempo"></RadarChartComponent>
             </div>
           </div>
         </div>
-        <div class="flex-1 w-72">
-          <div class="flex flex-col justify-between">
-            <div class="border-2 rounded-md p-3 m-2">
+        <div class="flex-1 ">
+          <div class="flex flex-col justify-between ">
+            <div class="border-4 border-color-yellow rounded-md p-3 m-2 bg-color-yellow-light max-h-96">
               <InfoCardComponent v-show="songData"
                                  :data="data1"></InfoCardComponent>
             </div>
-            <div class="border-2 rounded-md p-5 m-2">
+            <div class="bg-color-red color-4 rounded-md p-5 m-2">
               <PopularityScoreComponent v-show="songData"
                                         :songData="songData"
                                         :artistData="artistPopularityData"
@@ -45,7 +45,7 @@ export const ComparisonCard = {
         </div>
         <div class="flex-1 basis-2/5">
           <div class="flex flex-col justify-evenly">
-            <div id="song-barchart" class="flex-1 border-2 rounded-md p-3 m-2 ">
+            <div id="song-barchart" class="flex-1 border-4 rounded-md p-3 m-2 bg-white border-color-green">
               <Top10BarChartComponent v-show="songData"
                                       :data="songData"
                                       :is-song="true"
@@ -53,7 +53,7 @@ export const ComparisonCard = {
                                       @barClick="songSelected"
               ></Top10BarChartComponent>
             </div>
-            <div id="artist-barchart" class="flex-1 border-2 rounded-md p-3 m-2">
+            <div id="artist-barchart" class="flex-1 border-4 rounded-md p-3 m-2 bg-white border-color-green">
               <Top10BarChartComponent v-if="artistPopularityData !== undefined"
                                       :data="artistPopularityData"
                                       :is-song="false"

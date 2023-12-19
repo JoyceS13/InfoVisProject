@@ -5,6 +5,7 @@
     z-index: 1;
     max-height: 150px;
     overflow-y: auto;
+    padding: 0.25rem;
 }
 
 div {
@@ -57,5 +58,29 @@ body {
 
 .color-5 {
     color: var(--color-5);
+}
+
+.bg-color-purple {
+    background-color: var(--color-1);
+}
+
+.bg-color-green {
+    background-color: var(--color-2);
+}
+
+.bg-color-green-light {
+    background-color: rgba(138, 191, 156, 0.4);
+}
+
+.bg-color-yellow {
+    background-color: var(--color-3);
+}
+
+.bg-color-yellow-light {
+    background-color: rgba(242, 215, 80, 0.2);
+}
+
+.bg-color-red {
+    background-color: var(--color-5);
 }
 

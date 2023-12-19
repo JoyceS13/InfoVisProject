@@ -65,8 +65,8 @@ export const RadarChartComponent = {
                     labels: ['Danceability', 'Energy', 'Valence', 'Tempo', 'Loudness'],
                     datasets: [{
                         label: this.data1?.Track,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: ' rgba(194, 160, 217, 0.2)', //color of border with 0.2 opacity
+                        borderColor: '#C2A0D9',
                         borderWidth: 2,
                         data: this.radarData1
                     }]
