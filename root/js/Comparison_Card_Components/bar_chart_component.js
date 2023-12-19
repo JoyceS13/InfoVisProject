@@ -1,9 +1,9 @@
 export const Top10BarChartComponent = {
     template: `
-      <div>
-        <div>Top 10 Bar Chart</div>
-        <div class="tooltip absolute text-xs bg-white bg-opacity-60 rounded-md"></div>
-        <div class="top10_bar_chart"></div>
+      <div class="max-h-56">
+        <div class="text-xl">Top 20 {{ isSong ? "Songs":"Artists" }}</div>
+        <div class="tooltip absolute text-xs bg-white bg-opacity-60 rounded-md z-50"></div>
+        <div class="top10_bar_chart max-h-52 overflow-auto bg-white"></div>
       </div>`,
     data() {
         return {
@@ -18,22 +18,32 @@ export const Top10BarChartComponent = {
     methods: {
         createBarChart() {
 
-            const svg_width = 400;
-            const svg_height = 200;
+            const svg_width = 420;
+            const svg_height = 700;
             const component = `#${this.componentId}`
+            const axisheight = 40;
+            const xAxisSvg = d3.select(component).select(".top10_bar_chart").append("svg")
+                .attr("width", svg_width)
+                .attr("height", axisheight)
+                .style("background-color", "inherit")
+                .style("opacity", "1")
+                .style("position", "absolute")
+                .style("z-index", "40");
 
             const svg = d3.select(component).select(".top10_bar_chart")
                 .append("svg")
                 .attr("width", svg_width)
                 .attr("height", svg_height)
+                .attr("transform", "translate(0," + axisheight + ")");
 
-            const margin = {top: 35, right: 20, bottom: 30, left: 100};
+            const margin = {top: 0, right: 10, bottom: 0, left: 120};
+
             const width = svg_width - margin.left - margin.right;
-            const height = svg_height - margin.top - margin.bottom;
+            const height = svg_height - margin.top - margin.bottom - axisheight
 
-            const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-            const barData = this.data.slice(0, 5)
+            const barData = this.data.slice(0, 20)
 
             const y = d3.scaleBand()
                 .domain(barData.map(d => this.isSong ? d.Track : d.Artist))
@@ -48,19 +58,23 @@ export const Top10BarChartComponent = {
                 .style("object-position", "left")
                 .selectAll(".tick text")  // Select all y-axis tick labels
                 .style("object-position", "left")
-                .call(this.wrap, margin.left);  // Call the wrap function for word wrapping
+                .call(this.wrap, margin.left-8);  // Call the wrap function for word wrapping
+
+
+            // Append a group for the x-axis
+            const xAxisG = xAxisSvg.append("g")
+                .attr("transform", "translate(" + margin.left + ", " + axisheight + ")");
 
             //use billion instead of giga
             const formatAxis = d3.format(".1~s");
 
-            g.append("g")
-                .attr("class", "axis axis--x")
-                .call(d3.axisTop(x).ticks(10, "s").tickFormat(d => formatAxis(d / 1e9) + "B"))
+            // Call the x-axis generator
+            xAxisG.call(d3.axisTop(x).ticks(10, "s").tickFormat(d => formatAxis(d / 1e9) + "B"))
                 .append("text")
                 .attr("x", 6)
                 .attr("fill", "#000")
                 .text("Popularity")
-                .attr("transform", "translate(0,-25)");
+                .attr("transform", "translate(0,-25)");;
 
             g.selectAll(".bar")
                 .data(barData)
@@ -111,7 +125,7 @@ export const Top10BarChartComponent = {
                 const y = label.attr("y");
                 const dy = parseFloat(label.attr("dy"));
                 ///to make the text not overlap the ticks
-                const rightMargin = 10;
+                const rightMargin = 8;
                 let tspan = label.text(null)
                     .append("tspan")
                     .attr("width", width)

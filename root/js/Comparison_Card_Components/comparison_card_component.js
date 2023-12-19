@@ -14,7 +14,7 @@ export const ComparisonCard = {
     },
     template: `
       <div class="flex flex-row flex-wrap justify-between">
-        <div class="flex-1 ">
+        <div class="flex-1 max-w-72">
           <div class="flex flex-col justify-between ">
             <div class="border-2 rounded-md p-3 m-2">
               <SelectSearchComponent :searchData="searchData"
@@ -28,7 +28,7 @@ export const ComparisonCard = {
             </div>
           </div>
         </div>
-        <div class="flex-1  min-w-500">
+        <div class="flex-1 w-72">
           <div class="flex flex-col justify-between">
             <div class="border-2 rounded-md p-3 m-2">
               <InfoCardComponent v-show="songData"

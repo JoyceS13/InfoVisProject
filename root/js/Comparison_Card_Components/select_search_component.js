@@ -26,7 +26,7 @@ function debounce(func, timeout = 100, initialWait = false) {
 export const SelectSearchComponent = {
     template: `
       <div class="space-y-1.5">
-        <div>Pick any song or artist:</div>
+        <div class="text-lg">Pick any song or artist:</div>
         <div v-if="searchData===undefined"></div>
         <div v-else class=" w-full">
           <input type="text"
