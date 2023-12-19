@@ -7,11 +7,55 @@
     overflow-y: auto;
 }
 
+div {
+    font-size: 14px;
+}
+
 :root {
     --color-1: #C2A0D9;
     --color-2: #8ABF9C;
     --color-3: #F2D750;
     --color-4: #F2F0E9;
     --color-5: #D95D41;
+}
+
+body {
+    background-color: var(--color-4);
+}
+
+.border-color-purple {
+    border-color: var(--color-1);
+}
+
+.border-color-green {
+    border-color: var(--color-2);
+}
+
+.border-color-yellow {
+    border-color: var(--color-3);
+}
+
+.border-color-red {
+    border-color: var(--color-5);
+}
+
+.color-1 {
+    color: var(--color-1);
+}
+
+.color-2 {
+    color: var(--color-2);
+}
+
+.color-3 {
+    color: var(--color-3);
+}
+
+.color-4 {
+    color: var(--color-4);
+}
+
+.color-5 {
+    color: var(--color-5);
 }
 
