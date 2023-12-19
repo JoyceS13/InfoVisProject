@@ -102,6 +102,7 @@ export const Top10BarChartComponent = {
                 })
                 .on("click", (event, d) => {
                     // Emit the id or artist when a bar is clicked
+                    optionChanged(this.isSong, this.isSong ? d.track_id : d.Artist);
                     this.$emit("barClick", this.isSong ? d.track_id : d.Artist);
                 });
 
