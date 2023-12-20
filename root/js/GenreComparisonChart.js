@@ -1,6 +1,6 @@
 let genreChart; // Chart.js radar chart instance
 let genreWorkingSet; // Working set for genre data
-let features = ["Danceability", "Energy", "Valence", "Loudness", "Tempo"];
+let features = ["Danceability", "Energy", "Valence", "Tempo", "Loudness"];
 
 function drawWeighted(dataSet, color, name) {
   // Prepare data
@@ -58,7 +58,9 @@ function initGenreGraph(data) {
         r: {
           min: 0,
           max: 1,
-          stepSize: 0.25,
+          ticks: {
+            stepSize: 0.2,
+        },
         },
       },
     },
@@ -76,8 +78,11 @@ function initGenreGraph(data) {
 }
 
 function drawGenres(genres) {
-  const colors = genres.map((genre, i) => d3.rgb(d3.interpolateViridis(i / (genres.length - 1))));
+  const colorScale = d3.scaleLinear()
+  .domain([0, genres.length - 1])
+  .range(['#D95D41', '#8ABF9C']);
 
+  const colors = genres.map((genre, i) => d3.color(colorScale(i)));
   // Clear existing datasets
   genreChart.data.datasets = [];
   genreChart.update();
@@ -100,5 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
   $('#items').on('change', function () {
     const selectedGenres = $(this).val();
     drawGenres(selectedGenres);
+    highlighted.forEach(genre => {
+      $("li[title='"+genre+"']").css("background-color",'#F2D750');
+  });
   });
 });

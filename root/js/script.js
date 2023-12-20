@@ -8,7 +8,7 @@ function optionChanged(isSong, idOrArtist) {
     }else {
         genres = window.dataset.filter(row => row['Artist'] == idOrArtist).map(row => row.track_genre);
     }
-    console.log(genres);
     highlightBars(genres);
     $('#items').val(genres).trigger('change');
+    
 }
