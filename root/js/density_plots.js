@@ -1,28 +1,28 @@
-var width = 1300,
-    size = 250,
-    padding = 50;
-// Append "Show by genre" checkbox
-var checkboxDiv = d3.select("body")
-  .append("div");
-
-checkboxDiv.append("input")
-  .attr("type", "checkbox")
-  .attr("id", "showByGenreCheckbox")
-  .on("change", function() {
-    // Get the checkbox value (checked or unchecked)
-    var isChecked = d3.select(this).property("checked");
-    // Perform actions based on the checkbox value
-    console.log("Show by genre:", isChecked);
-    // Implement logic to update the plots based on the checkbox value
-  });
-
-// checkboxDiv.append("label")
-//   .attr("for", "showByGenreCheckbox")
-//   .text("Show by genre");
-
-
-  
+document.addEventListener('DOMContentLoaded', function() {
+    // Usage of initialize function
+    
+    initializeOriginalData(function(data) {
+       densityPlots(data);
+    });
+});
+var width = window.innerWidth,
+size = 250,
+padding = 50; 
 d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
+//function densityPlots(data){
+    // Append "Show by genre" checkbox
+
+    var checkboxDiv = d3.select("body")
+    .append("div")
+    .attr("id", "showByGenreCheckbox");
+
+    checkboxDiv.append("input")
+    .attr("type", "checkbox")
+    .attr("id", "showByGenre");
+
+    checkboxDiv.append("label")
+    .attr("for", "showByGenre")
+    .text("Show by genre");
     domainByTrait = {}
     data.forEach(function(d) {
         // d['Duration_mins'] = +d['Duration_ms'] / 60000; // Convert ms to mins and add a new property
@@ -56,8 +56,10 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
         .attr("transform", function(d, i) {
           //var translateX = (i % traitsX.length) * (size + padding); // Adjusted translation for X
          // var translateY = Math.floor(i / traitsX.length) * (size + padding); // Adjusted translation for Y
-         var translateX = (i % traitsX.length)  * size + 1.5 * padding;
-         var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * size;
+         var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
+         //var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * size;
+         var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 30);
+
          return "translate(" + translateX + "," + translateY + ")";
       }).each(plot);
 
@@ -176,7 +178,8 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
                   .attr("fill", function(d) { return color(d.value); });
 
            
-              
+                
+
           }
         
        else {
@@ -210,14 +213,11 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
             .attr("transform", "translate(" + padding + "," + -padding / 10 + ")") // Adjusted translate
             .attr("d", d3.geoPath())
             .attr("fill", function(d) { return color(d.value); });
-    
-    
-        
-        
-          }
+        }
 
     } 
   }
+//}
 });
 
 function cross(a, b) {

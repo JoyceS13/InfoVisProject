@@ -55,8 +55,10 @@ circle.hidden {
 }
 #showByGenreCheckbox {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 10px; /* Adjust this value to position the checkbox vertically */
+      left: 50%; /* Position it horizontally at the center */
+      transform: translateX(-50%); /* Center the checkbox horizontally */
+      z-index: 1000; /* Ensure checkbox appears above other elements */
     }
 #showByGenreLabel {
   margin-left: 10px;
@@ -65,14 +67,11 @@ circle.hidden {
 <body>
 <script src="https://d3js.org/d3.v6.min.js"></script>
 
-<div id="showByGenreCheckbox">
-  <input type="checkbox" id="showByGenre">
-  <label for="showByGenre" id="showByGenreLabel">Show by genre</label>
-</div>
+<div id="showByGenreCheckbox"></div>
 
 </div>
 </div>
-
+<script src="d3init.js"></script>
 <script src ="density_plots.js"></script>
 </script>
 </html>
