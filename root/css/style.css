@@ -5,13 +5,82 @@
     z-index: 1;
     max-height: 150px;
     overflow-y: auto;
+    padding: 0.25rem;
+}
+
+div {
+    font-size: 14px;
 }
 
 :root {
-    --color-1: #D774F2;
-    --color-2: #B6C5F2;
-    --color-3: #B6F2D0;
-    --color-4: #F2D57C;
-    --color-5: #D9D6D2;
+    --color-1: #C2A0D9;
+    --color-2: #8ABF9C;
+    --color-3: #F2D750;
+    --color-4: #F2F0E9;
+    --color-5: #D95D41;
+}
+
+body {
+    background-color: var(--color-4);
+}
+
+.border-color-purple {
+    border-color: var(--color-1);
+}
+
+.border-color-green {
+    border-color: var(--color-2);
+}
+
+.border-color-yellow {
+    border-color: var(--color-3);
+}
+
+.border-color-red {
+    border-color: var(--color-5);
+}
+
+.color-1 {
+    color: var(--color-1);
+}
+
+.color-2 {
+    color: var(--color-2);
+}
+
+.color-3 {
+    color: var(--color-3);
+}
+
+.color-4 {
+    color: var(--color-4);
+}
+
+.color-5 {
+    color: var(--color-5);
+}
+
+.bg-color-purple {
+    background-color: var(--color-1);
+}
+
+.bg-color-green {
+    background-color: var(--color-2);
+}
+
+.bg-color-green-light {
+    background-color: rgba(138, 191, 156, 0.4);
+}
+
+.bg-color-yellow {
+    background-color: var(--color-3);
+}
+
+.bg-color-yellow-light {
+    background-color: rgba(242, 215, 80, 0.2);
+}
+
+.bg-color-red {
+    background-color: var(--color-5);
 }
 
