@@ -52,7 +52,38 @@ export const RadarChartComponent = {
                 plugins: {
                     legend: {
                         position: 'bottom'
-                    }
+                    },
+                    tooltip: {
+                        position: 'nearest',
+                        width: 200,
+                        callbacks: {
+                            title: (tooltipItem) => {
+                                // Customize the title of the tooltip
+                                console.log(tooltipItem);
+                                return tooltipItem[0].label;
+                            },
+                            afterTitle: (tooltipItem, data) => {
+                                console.log("afterTitle");
+                                const label = tooltipItem[0].label;
+                                if (label === "Danceability") {
+                                    return 'Danceability describes how suitable a track \n is for dancing';
+                                } else if (label === "Energy") {
+                                    return 'Energy represents a perceptual measure of \n intensity and activity.';
+                                } else if (label === "Valence") {
+                                    return 'Valence describes the musical positiveness \n conveyed by a track.';
+                                } else if (label === "Tempo") {
+                                    return 'Tempo is the speed or pace of a given piece and \n derives directly from the average beat duration.';
+                                } else if (label === "Loudness") {
+                                    return 'Loudness values are averaged across \n the entire track.';
+                                }
+                            },
+                            label: (tooltipItem, data) => {
+                                console.log(tooltipItem)
+                                // Customize the content of the tooltip
+                                return `Value: ${d3.format(".3f")(tooltipItem.raw)}`;
+                            },
+                        },
+                    },
                 },
                 responsive: true
             };

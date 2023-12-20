@@ -73,7 +73,7 @@ export const Top10BarChartComponent = {
                 .attr("x", 6)
                 .attr("fill", "#000")
                 .text("Popularity")
-                .attr("transform", "translate(0,-25)");;
+                .attr("transform", "translate(0,-25)");
 
             g.selectAll(".bar")
                 .data(barData)
