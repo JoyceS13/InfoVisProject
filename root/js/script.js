@@ -1,3 +1,4 @@
+// function connecting the choices from the dropdown and bar chart to the other components
 function optionChanged(isSong, idOrArtist) {
     console.log(window.dataset)
     console.log(isSong, idOrArtist);

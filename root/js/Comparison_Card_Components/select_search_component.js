@@ -1,3 +1,4 @@
+//displays a search bar with dropdown options
 
 //debounce function to speed up search
 function debounce(func, timeout = 100, initialWait = false) {
@@ -24,6 +25,7 @@ function debounce(func, timeout = 100, initialWait = false) {
 }
 
 export const SelectSearchComponent = {
+    //the dropdown appears when the user types in the search bar
     template: `
       <div class="space-y-1.5">
         <div class="text-lg text-white font-semibold">Pick any song or artist</div>
@@ -80,6 +82,7 @@ export const SelectSearchComponent = {
         }
     },
     computed: {
+        //filter the data based on the search term, searches songs or artists
         filteredDataSongs() {
             return this.filteredData.filter(item => item.isSong)
         },
@@ -88,6 +91,7 @@ export const SelectSearchComponent = {
         }
     },
     methods: {
+        //compute the filtered data
         computeFilteredData() {
             const filtered = [];
             const regOption = new RegExp(this.searchTerm, 'ig');
@@ -98,6 +102,7 @@ export const SelectSearchComponent = {
             }
             this.filteredData = filtered
         },
+        //when an option is clicked, set the selected option and emit the selected option
         optionClicked(item) {
             this.selected = {
                 isSong: item.isSong,
@@ -105,7 +110,9 @@ export const SelectSearchComponent = {
             }
             this.searchTerm = item.isSong ? item.track : item.artist
             this.optionsShown = false;
+            // calls the function to change other components on the page
             optionChanged(item.isSong, item.isSong ? item.id : item.artist)
+            // emits the option to change components on the comparison card
             this.$emit('selected', this.selected)
         },
         showOptions() {
@@ -126,6 +133,8 @@ export const SelectSearchComponent = {
             }
         }
     },
+    //watch for the replace prop to change, and replace the search term with the new search term
+    //this is used when the user clicks on a song or artist in the bar chart
     watch: {
         replace: {
             handler: 'replaceSearch'

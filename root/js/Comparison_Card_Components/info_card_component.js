@@ -1,3 +1,5 @@
+// displays the information for the selected artist or song
+
 export const InfoCardComponent = {
     template: `
       <div v-if="data === undefined">Loading</div>
@@ -61,7 +63,7 @@ export const InfoCardComponent = {
 
       </div>`,
     props: ["data"],
-    computed: {
+    computed: { //formats all the numbers for display
         interactions() {
             if (this.data === undefined) {
                 return undefined
@@ -109,6 +111,7 @@ export const InfoCardComponent = {
         }
     },
     methods: {
+        //custom formatting to show B for billions instead of G for giga
         formatNumber(value) {
             const customFormat = d3.format(".3~s"); // Use ~ to suppress trailing zeros
 
