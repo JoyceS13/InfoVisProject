@@ -1,13 +1,13 @@
 let highlighted = [];
 
-let bar_base_color = '#69b3a2';
-let bar_hover_color = '#589587';
-let bar_highlight_color = '#E0CB6C';
+let bar_base_color = '#8ABF9C';
+let bar_hover_color = '#679877';
+let bar_highlight_color = '#F2D750';
 function init_barChart(data) {
     let genres = new Set(data.map(d => d.track_genre));
 
-    let width = window.innerWidth-20; // Adjust as needed
-    let height = 500;
+    let width = $('#genre_bars').width();
+    let height = 650;
 
     // Sort data by Views in descending order
     const totals = [];
@@ -39,7 +39,7 @@ function init_barChart(data) {
         .range([height - padding, 0]);
 
     // Create an SVG container inside the specified div
-    const svg = d3.select('#genre_histogram').append('svg')
+    const svg = d3.select('#genre_bars').append('svg')
         .attr('width', width)
         .attr('height', height);
 
@@ -51,7 +51,8 @@ function init_barChart(data) {
         .style('border', 'solid')
         .style('border-width', '2px')
         .style('border-radius', '5px')
-        .style('padding', '5px');
+        .style('padding', '5px')
+        .style('text-transform','capitalize');
 
     // Draw rectangles (bars) for each genre
     svg.selectAll('.invisible-rect')
@@ -146,7 +147,7 @@ svg.selectAll('.visible-rect')
         .attr('x',  - (height / 2))
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
-        .text('Number of Views');
+        .text('Average number of Views');
 }
 
 function highlightBars(genres) {

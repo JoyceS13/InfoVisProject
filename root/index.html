@@ -21,27 +21,29 @@
     <!-- content -->
     <div id="comparison-card"></div>
 
-
-    <!-- Genre comparison Radar -->
-    <div id="genre_comparison">
-        <canvas id="genre_chart"> </canvas>
-        <div id="genre_selector">
-            <div class="max-w-md mx-auto p-6 rounded-md shadow-md">
-
-            <form>
-                <label for="items" class="block text-sm font-medium text-gray-600">Select 2-3 items:</label>
-                <select id="items" multiple="multiple"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </select>
-                <br>
-            </form>
-
+    <div class="flex flex-row justify-between">
+        <div class="w-2/3">
+            <div id="genre_bars" class=" border-4 border-color-red bg-white rounded-md p-3 pt-6 m-2">
+            </div>
+        </div>
+        <div class="w-1/3" id="genre_comparison">
+            <div class="border-4 border-color-green bg-white rounded-md p-3 m-2 w-auto">
+                <canvas id="genre_chart"></canvas>
+            </div>
+            <div id="genre_selector" class=" border-4 border-color-green bg-white rounded-md p-3 m-2">
+                <div>
+                    <form>
+                        <label for="items" class="block text-sm font-medium text-gray-600">Select Genres to
+                            display</label>
+                        <select id="items" multiple="multiple"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </select>
+                        <br>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
-
-    <!-- Genre Hist -->
-    <div id="genre_histogram"></div>
 
 
     <!-- vue framework -->
