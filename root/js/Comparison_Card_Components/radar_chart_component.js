@@ -1,6 +1,6 @@
 export const RadarChartComponent = {
     template: `
-      <canvas id="radar_chart"></canvas>`,
+      <canvas id="radar_chart" class="text-sm" style="width:200px; height:250px"></canvas>`,
     data() {
         return {
             radarChart: null
@@ -43,7 +43,12 @@ export const RadarChartComponent = {
                             backdropColor: '#D9D6D2'
                         },
                         min: 0,
-                        max: 1
+                        max: 1,
+                        title: {
+                            font: {
+                                size: 16
+                            }
+                        }
                     },
                     font: {
                         size: 12
