@@ -22,6 +22,7 @@ div {
 
 body {
     background-color: var(--color-4);
+    font-family: 'Inter', sans-serif;
 }
 
 .border-color-purple {
