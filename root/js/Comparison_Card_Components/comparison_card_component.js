@@ -15,7 +15,26 @@ export const ComparisonCard = {
         PopularityScoreComponent
     },
     template: `
-      <div class="flex flex-row flex-wrap justify-between">
+      <div class="flex-1 basis-2/5">
+        <div class="flex flex-row justify-evenly">
+          <div id="song-barchart" class="flex-1 border-2 rounded-md p-3 m-2 bg-white border-color-green">
+            <Top10BarChartComponent v-show="songData"
+                                    :data="songData"
+                                    :is-song="true"
+                                    :component-id="song_barchart"
+                                    @barClick="songSelected"
+            ></Top10BarChartComponent>
+          </div>
+          <div id="artist-barchart" class="flex-1 border-2 rounded-md p-3 m-2 bg-white border-color-green">
+            <Top10BarChartComponent v-if="artistPopularityData !== undefined"
+                                    :data="artistPopularityData"
+                                    :is-song="false"
+                                    :component-id="artist_barchart"
+                                    @barClick="artistSelected"
+            ></Top10BarChartComponent>
+          </div>
+        </div>
+      <div class="flex flex-row flex-wrap justify-between w-2/3">
         <div class="flex-1 max-w-64 shrink-1">
           <div class="flex flex-col justify-between">
             <div class="border-2 rounded-md p-3 m-2 bg-color-purple border-color-purple">
@@ -45,25 +64,7 @@ export const ComparisonCard = {
             </div>
           </div>
         </div>
-        <div class="flex-1 basis-2/5">
-          <div class="flex flex-col justify-evenly">
-            <div id="song-barchart" class="flex-1 border-2 rounded-md p-3 m-2 bg-white border-color-green">
-              <Top10BarChartComponent v-show="songData"
-                                      :data="songData"
-                                      :is-song="true"
-                                      :component-id="song_barchart"
-                                      @barClick="songSelected"
-              ></Top10BarChartComponent>
-            </div>
-            <div id="artist-barchart" class="flex-1 border-2 rounded-md p-3 m-2 bg-white border-color-green">
-              <Top10BarChartComponent v-if="artistPopularityData !== undefined"
-                                      :data="artistPopularityData"
-                                      :is-song="false"
-                                      :component-id="artist_barchart"
-                                      @barClick="artistSelected"
-              ></Top10BarChartComponent>
-            </div>
-          </div>
+        
         </div>
       </div>`,
     data() {

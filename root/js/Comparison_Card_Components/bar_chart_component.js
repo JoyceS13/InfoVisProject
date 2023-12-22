@@ -19,8 +19,9 @@ export const Top10BarChartComponent = {
     },
     methods: {
         createBarChart() {
+
             //define svg dimensions
-            const svg_width = 400;
+            const svg_width = 500;
             const svg_height = 700;
 
             const component = `#${this.componentId}`
