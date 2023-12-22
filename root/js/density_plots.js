@@ -4,7 +4,7 @@ padding = 60;
 
 
 var traitsX = ['Danceability', 'Energy', 'Loudness', 'Valence', 'Tempo'];
-var traitsY = ['Views', 'Stream', 'Interactions'];
+var traitsY = ['Views', 'Interactions', 'Stream'];
 var size = (width - 4 * padding ) / traitsX.length;
 var svg = d3.select("#density_plots").append("svg")
         .attr("id", "density-svg")
@@ -18,10 +18,16 @@ var cell = svg.selectAll(".cell")
     .data(cross(traitsY, traitsX)) // Reversed order of traitsY and traitsX for the correct layout
     .enter().append("g")
     .attr("transform", function(d, i) {
-       var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
-       var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 20);
+       //var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
+       //var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 20)
+        var horizontalSpacing = size + 20; // Increase horizontal spacing
+        var verticalSpacing = size + 20; // Increase vertical spacing
 
+        var translateX = (i % traitsX.length) * horizontalSpacing + 1.5 * padding;
+        var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * verticalSpacing;
         return "translate(" + translateX + "," + translateY + ")";
+ 
+       //return "translate(" + translateX + "," + translateY + ")";
 })
 
 // Color scheme
