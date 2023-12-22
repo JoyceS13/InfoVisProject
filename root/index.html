@@ -58,13 +58,21 @@
     <div id="genre_histogram"></div>
 
     <!-- Density plots -->
-    <div class="containerDensity">
-        <div id="radioDiv">
+    <div class="containerDensity relative" >
+        <div id="infoBox" class="absolute top-0 right-20 bg-white border border-gray-300 p-2 m-2 shadow-lg flex items-center">
+            <div class="info-icon" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #C2A0D9; text-align: center; line-height: 20px; font-size: 16px; color: #C2A0D9; margin-right: 8px;">
+                i
+            </div>
+            <p> Select an area to zoom in, click on the graph to reset.</p>
+        </div>
+        <div id="radioDiv" >
             <input type="radio" id="allSongsRadio" name="displayOption" value="all" checked>
             <label for="allSongsRadio" class="radio-label">All Songs</label>
 
             <input type="radio" id="genresPerSongRadio" name="displayOption" value="genresPerSong">
             <label for="genresPerSongRadio" class="radio-label">Genres Per Song</label>
+            
+            
         </div>
         <!-- <div class="logo-container">
             <div class="logo-text">
@@ -74,13 +82,7 @@
                 <p >Spotify</p>
             </div>
         </div> -->
-        <div id="density_plots" class="relative">
-            <div id="infoBox" class="absolute top-0 bg-white border border-gray-300 p-2 m-2 shadow-lg flex items-center">
-                <div class="info-icon" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #C2A0D9; text-align: center; line-height: 20px; font-size: 16px; color: #C2A0D9; margin-right: 8px;">
-                    i
-                </div>
-                <p> Select an area to zoom in, click on the graph to reset.</p>
-            </div>
+        <div id="density_plots">
             
         </div>
     </div>
