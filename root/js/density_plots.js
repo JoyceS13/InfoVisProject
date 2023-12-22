@@ -8,7 +8,7 @@ padding = 60;
 
 var traitsX = ['Danceability', 'Energy', 'Loudness', 'Valence', 'Tempo'];
 var traitsY = ['Views', 'Stream', 'Interactions'];
-var size = (width - 2 * padding ) / traitsX.length;
+var size = (width - 4 * padding ) / traitsX.length;
 var svg = d3.select("#density_plots").append("svg")
         .attr("id", "density-svg")
         .attr("width", size * traitsX.length + 3 * padding)
@@ -22,7 +22,7 @@ var cell = svg.selectAll(".cell")
     .enter().append("g")
     .attr("transform", function(d, i) {
        var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
-       var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 50);
+       var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 20);
 
         return "translate(" + translateX + "," + translateY + ")";
 })

@@ -100,7 +100,7 @@ input[type="radio"] {
 }
 
 /* Styles for labels resembling big buttons */
-label {
+label.radio-label {
     display: inline-block;
     padding: 10px 20px;
     margin: 5px;
@@ -111,8 +111,9 @@ label {
     user-select: none;
 }
 
+
 /* Styles for checked labels */
-input[type="radio"]:checked + label {
+input[type="radio"]:checked + label.radio-label {
     background-color: var(--color-5);
     color: white;
 }
