@@ -100,7 +100,7 @@ input[type="radio"] {
 }
 
 /* Styles for labels resembling big buttons */
-label {
+label.radio-label {
     display: inline-block;
     padding: 10px 20px;
     margin: 5px;
@@ -111,11 +111,32 @@ label {
     user-select: none;
 }
 
+
 /* Styles for checked labels */
-input[type="radio"]:checked + label {
+input[type="radio"]:checked + label.radio-label {
     background-color: var(--color-5);
     color: white;
 }
 #density_plots {
     padding: 3%; 
 }
+
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px; 
+    border-radius: 5px;
+    transform: rotate(-90deg); /* Rotates the text by 90 degrees */
+    transform-origin: bottom; /* Adjust the origin point of rotation */
+}
+
+.logo-text {
+    background-color: black;
+    
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px; /* Adjust margin as needed */
+    text-align: center;
+}
+
