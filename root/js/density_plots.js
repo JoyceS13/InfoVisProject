@@ -32,7 +32,7 @@ var cell = svg.selectAll(".cell")
 
 // Color scheme
 var color = d3.scaleLinear()
-              .domain([0.01, 1]) 
+              .domain([0.001, 5]) 
               .range(["#C2A0D9", "#F2D750"]); 
           
 
