@@ -227,6 +227,9 @@ export const ComparisonCard = {
         });
         // Sort the artistData array by popularity
         this.artistPopularityData.sort((a, b) => b.popularity - a.popularity);
+
+        //default the rest of the page
+        optionChanged(true, "0d28khcov6AiegSCpG5TuT")
     }
 
 }
