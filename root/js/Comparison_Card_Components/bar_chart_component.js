@@ -1,7 +1,7 @@
 export const Top10BarChartComponent = {
     template: `
       <div class="max-h-52">
-        <div class="text-xl">Top 20 {{ isSong ? "Songs":"Artists" }}</div>
+        <div class="text-xl font-semibold">Top 20 {{ isSong ? "Songs":"Artists" }}</div>
         <div class="tooltip absolute text-xs bg-white bg-opacity-60 rounded-md z-50 p-1"></div>
         <div class="top10_bar_chart max-h-48 overflow-auto bg-white"></div>
       </div>`,
@@ -18,7 +18,7 @@ export const Top10BarChartComponent = {
     methods: {
         createBarChart() {
 
-            const svg_width = 420;
+            const svg_width = 400;
             const svg_height = 700;
             const component = `#${this.componentId}`
             const axisheight = 40;
@@ -73,6 +73,7 @@ export const Top10BarChartComponent = {
                 .attr("x", 6)
                 .attr("fill", "#000")
                 .text("Popularity")
+                .attr("class", "font-medium text-xs")
                 .attr("transform", "translate(0,-25)");;
 
             g.selectAll(".bar")

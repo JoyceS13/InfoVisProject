@@ -26,7 +26,7 @@ function debounce(func, timeout = 100, initialWait = false) {
 export const SelectSearchComponent = {
     template: `
       <div class="space-y-1.5">
-        <div class="text-lg">Pick any song or artist:</div>
+        <div class="text-lg text-white font-semibold">Pick any song or artist</div>
         <div v-if="searchData===undefined"></div>
         <div v-else class=" w-full">
           <input type="text"
@@ -64,6 +64,10 @@ export const SelectSearchComponent = {
         placeholder: {
             type: String,
             default: "Search songs/artists"
+        },
+        replace: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -115,14 +119,16 @@ export const SelectSearchComponent = {
             this.computeFilteredData()
             this.optionsShown = true;
         }, 100, true),
-        clearInput() {
-            this.searchTerm = "";
-            this.clear = false;
+        replaceSearch() {
+            if (this.replace) {
+                this.searchTerm = this.replace.searchTerm;
+                this.replace = false;
+            }
         }
     },
     watch: {
-        clear: {
-            handler: 'clearInput'
+        replace: {
+            handler: 'replaceSearch'
         }
     }
 }
