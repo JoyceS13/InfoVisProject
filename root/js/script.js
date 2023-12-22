@@ -1,4 +1,5 @@
 function optionChanged(isSong, idOrArtist) {
+    data = window.dataset
     console.log(window.dataset)
     console.log(isSong, idOrArtist);
     let genres;
@@ -9,6 +10,9 @@ function optionChanged(isSong, idOrArtist) {
         genres = window.dataset.filter(row => row['Artist'] == idOrArtist).map(row => row.track_genre);
     }
     highlightBars(genres);
+    let uniqueGenres = [...new Set(genres)];
+    
+    handleRadioChangeAndInitDensity(data, uniqueGenres)
     $('#items').val(genres).trigger('change');
     
 }

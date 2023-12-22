@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+            margin: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 110vh;
+            font-family: Arial, sans-serif;
+            
+        }
+
+
+svg {
+  font: 10px sans-serif;
+  padding: 10px;
+}
+
+.axis,
+.frame {
+  shape-rendering: crispEdges;
+}
+
+.axis line {
+  stroke: #ddd;
+}
+
+.axis path {
+  display: none;
+}
+
+.cell text {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.frame {
+  fill: none;
+  stroke: #aaa;
+}
+
+circle {
+  fill-opacity: .7;
+}
+
+circle.hidden {
+  fill: #ccc !important;
+}
+
+.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+#showByGenreCheckbox {
+      position: absolute;
+      top: 10px; /* Adjust this value to position the checkbox vertically */
+      left: 50%; /* Position it horizontally at the center */
+      transform: translateX(-50%); /* Center the checkbox horizontally */
+      z-index: 1000; /* Ensure checkbox appears above other elements */
+    }
+#showByGenreLabel {
+  margin-left: 10px;
+}
+</style>
+<body>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+
+<div id="showByGenreCheckbox"></div>
+
+</div>
+</div>
+<script src="d3init.js"></script>
+<script src ="density_plots.js"></script>
+</script>
+</html>
