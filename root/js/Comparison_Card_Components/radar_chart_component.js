@@ -1,3 +1,5 @@
+// display a radar chart for the comparison card with the audio features of the selected song/artist
+
 export const RadarChartComponent = {
     template: `
       <canvas id="radar_chart" class="text-sm" style="width:200px; height:250px"></canvas>`,
@@ -11,6 +13,7 @@ export const RadarChartComponent = {
         maxTempo: Number
     },
     computed: {
+        // return the data for the radar chart
         radarData1() {
             if (this.data1 === undefined) {
                 return [0, 0, 0, 0, 0]
@@ -20,7 +23,6 @@ export const RadarChartComponent = {
     },
     mounted() {
         this.createChart()
-
     },
     methods: {
         createChart() {
@@ -30,12 +32,7 @@ export const RadarChartComponent = {
                     angleLines: {
                         display: true,
                     },
-                    pointLabels: {
-                        font: {
-                            size: 24
-                        },
-                        color: 'blue',
-                    },
+                    // define the scale of the radar chart
                     r: {
                         ticks: {
                             beginAtZero: true,
@@ -55,18 +52,22 @@ export const RadarChartComponent = {
                     },
                 },
                 plugins: {
+                    //moves the legend to the bottom of the chart
                     legend: {
                         position: 'bottom'
                     },
+                    //add a tooltip to the chart
                     tooltip: {
                         position: 'nearest',
                         width: 200,
                         callbacks: {
+                            //the title displays the name of the audio feature
                             title: (tooltipItem) => {
                                 // Customize the title of the tooltip
                                 console.log(tooltipItem);
                                 return tooltipItem[0].label;
                             },
+                            //adds a description of the audio feature to the tooltip
                             afterTitle: (tooltipItem, data) => {
                                 console.log("afterTitle");
                                 const label = tooltipItem[0].label;
@@ -82,6 +83,7 @@ export const RadarChartComponent = {
                                     return 'Loudness values are averaged across \n the entire track.';
                                 }
                             },
+                            //the label displays the value of the audio feature
                             label: (tooltipItem, data) => {
                                 console.log(tooltipItem)
                                 // Customize the content of the tooltip
@@ -110,9 +112,11 @@ export const RadarChartComponent = {
                 options: options
             });
 
+            // adds the radar chart to the component so it can be updated if the selection changes
             Object.seal(radarChart);
             this.radarChart = radarChart;
         },
+        // update the radar chart if the selection changes
         updateChart() {
             if (this.radarChart) {
                 this.radarChart.data.datasets[0].data = this.radarData1
@@ -121,11 +125,13 @@ export const RadarChartComponent = {
                 this.radarChart.update()
             }
         },
+        // map the loudness value to a value between 0 and 1
         loudnessMap(loudness) {
             return (loudness + 60) / 60
         }
     },
     watch: {
+        // watch for changes in the data and update the chart
         data1: {
             handler: 'updateChart'
         }

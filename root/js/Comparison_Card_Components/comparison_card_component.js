@@ -4,6 +4,8 @@ import {InfoCardComponent} from "./info_card_component.js";
 import {Top10BarChartComponent} from "./bar_chart_component.js";
 import {PopularityScoreComponent} from "./popularity_score_component.js";
 
+//ties together all the components for the comparison card
+//makes sure to link all the components together when interacted with
 export const ComparisonCard = {
     components: {
         SelectSearchComponent,
@@ -85,11 +87,16 @@ export const ComparisonCard = {
         songData: Array
     },
     computed: {
+        //get data from selection, either from search or from clicking on a bar
+        //returns information about the song or artist for the info card
         data1() {
             return this.getData(this.selection1)
         }
     },
     methods: {
+        //set selection to the selected item from the search bar
+        //if nothing is selected, set selection to the default song
+        //this makes sure that the selection is never undefined
         selected1(selected) {
             if (JSON.stringify(selected) === '{}') {
                 this.selection1 = {
@@ -103,6 +110,9 @@ export const ComparisonCard = {
                 }
             }
         },
+        //composes the data for the info card if the selection is an artist
+        //this is done by aggregating all the data for the artist
+        //the input is the list of songs by the artist
         artist_info(artistData) {
             if (artistData === undefined) {
                 return undefined
@@ -129,12 +139,13 @@ export const ComparisonCard = {
 
             }
         },
+        //gets the data for the info card
         getData(selection) {
             let retrievedData
-            if (selection.isSong) {
+            if (selection.isSong) { //for songs, just return the song data
                 retrievedData = this.songData.find(row => row.track_id === selection.idOrArtist)
                 retrievedData.isSong = true
-            } else {
+            } else { //for artists, aggregate the data for the artist first
                 const artistData = this.songData.filter(row => row.Artist.has(selection.idOrArtist))
                 retrievedData = this.artist_info(artistData)
                 retrievedData.Artist = selection.idOrArtist
@@ -142,6 +153,7 @@ export const ComparisonCard = {
             }
             return retrievedData
         },
+        //when a bar is clicked, set the selection to the clicked item
         songSelected(id) {
             this.selection1 = {
                 isSong: true,
@@ -152,6 +164,7 @@ export const ComparisonCard = {
                 searchTerm: this.songData.find(row => row.track_id === id).Track
             }
         },
+        //when a bar is clicked, set the selection to the clicked item
         artistSelected(artist) {
             this.selection1 = {
                 isSong: false,
@@ -166,12 +179,12 @@ export const ComparisonCard = {
     mounted() {
         //get max tempo
         this.maxTempo = d3.max(this.songData, row => parseInt(row.Tempo))
-        console.log(this.maxTempo)
 
-        //generate search data
-        //extract columns necessary to search for artists
+        //generate search data for the search bar
+        //find all unique artists
         const artistSearchSet = new Set();
         this.songData.forEach(row => row.Artist.forEach(artist => artistSearchSet.add(artist)))
+        //extract columns necessary to search for artists
         const artistSearchData = Array.from(artistSearchSet).map(item => {
             return {
                 artist: item,
@@ -197,8 +210,9 @@ export const ComparisonCard = {
             ...songSearchData
         ]
 
-        //generate artist data
+        //generate artist data for the artist bar chart and popularity score
         this.artistPopularityData = []
+        // For each artist, sum the popularity of all their songs
         artistSearchSet.forEach(artist => {
             const popularity = this.songData
                 .filter(row => row.Artist.has(artist))
@@ -211,6 +225,7 @@ export const ComparisonCard = {
                 popularity: popularity
             });
         });
+        // Sort the artistData array by popularity
         this.artistPopularityData.sort((a, b) => b.popularity - a.popularity);
     }
 
