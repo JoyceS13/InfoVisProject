@@ -57,6 +57,7 @@ function createDensityPlots(data) {
     
     cell.selectAll(".x.axis").remove();
     cell.selectAll(".y.axis").remove();
+    cell.selectAll(".brush").remove();
     cell.each(plot);
 
     
