@@ -147,7 +147,7 @@ svg.selectAll('.visible-rect')
         .attr('x',  - (height / 2))
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
-        .text('Average number of Views');
+        .text('Average Number of Streams');
 }
 
 function highlightBars(genres) {
