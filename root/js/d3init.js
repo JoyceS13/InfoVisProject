@@ -9,6 +9,7 @@ function initialize() {
             window.dataset = data
             initGenreGraph(data);
             init_barChart(data);
+            handleRadioChangeAndInitDensity(data, null);
             return data;
         })
         .catch(function (error) {

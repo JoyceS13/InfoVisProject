@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>InfoVis</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <!-- tailwind -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <!-- Include Select2 CSS -->
@@ -36,9 +37,26 @@
     </div>
     </div>
 
+
+   
+    
     <!-- Genre Hist -->
     <div id="genre_histogram"></div>
+    
 
+     <!-- Density plots -->
+    <div class="containerDensity">
+        <div id="radioDiv">
+            <input type="radio" id="allSongsRadio" name="displayOption" value="all" checked>
+            <label for="allSongsRadio">All Songs</label>
+        
+            <input type="radio" id="genresPerSongRadio" name="displayOption" value="genresPerSong">
+            <label for="genresPerSongRadio">Genres Per Song</label>
+        </div>
+        <div id="density_plots"></div>
+    </div>
+
+    
 
     <!-- vue framework -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -64,6 +82,7 @@
     <script src="js/comparison_card.js" type="module"></script>
     <script src="js/GenreComparisonChart.js"></script>
     <script src="js/genre_barchart.js"></script>
+    <script src="js/density_plots.js"></script>
 </body>
 
 </html>

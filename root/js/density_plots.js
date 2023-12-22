@@ -1,70 +1,70 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Usage of initialize function
-    
-    initializeOriginalData(function(data) {
-       densityPlots(data);
-    });
-});
 var width = window.innerWidth,
-size = 250,
-padding = 50; 
-d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
-//function densityPlots(data){
-    // Append "Show by genre" checkbox
 
-    var checkboxDiv = d3.select("body")
-    .append("div")
-    .attr("id", "showByGenreCheckbox");
+padding = 60; 
 
-    checkboxDiv.append("input")
-    .attr("type", "checkbox")
-    .attr("id", "showByGenre");
 
-    checkboxDiv.append("label")
-    .attr("for", "showByGenre")
-    .text("Show by genre");
+
+
+
+var traitsX = ['Danceability', 'Energy', 'Loudness', 'Valence', 'Tempo'];
+var traitsY = ['Views', 'Stream', 'Interactions'];
+var size = (width - 2 * padding ) / traitsX.length;
+var svg = d3.select("#density_plots").append("svg")
+        .attr("id", "density-svg")
+        .attr("width", size * traitsX.length + 3 * padding)
+        .attr("height", size * traitsY.length + 3 * padding)
+        .append("g")
+        .attr("transform", "translate(" + padding + "," + (-padding / 2) + ")");
+
+
+var cell = svg.selectAll(".cell")
+    .data(cross(traitsY, traitsX)) // Reversed order of traitsY and traitsX for the correct layout
+    .enter().append("g")
+    .attr("transform", function(d, i) {
+       var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
+       var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 50);
+
+        return "translate(" + translateX + "," + translateY + ")";
+})
+var color = d3.scaleLinear()
+              .domain([0.01, 1]) 
+              .range(["#C2A0D9", "#F2D750"]); 
+          
+
+// Function to create density plots
+function createDensityPlots(data) {
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    // Data processing
     domainByTrait = {}
     data.forEach(function(d) {
         // d['Duration_mins'] = +d['Duration_ms'] / 60000; // Convert ms to mins and add a new property
         d['Interactions'] = +d['Comments'] + +d['Likes'];
     });
 
-    var traitsX = ['Danceability', 'Energy', 'Loudness', 'Valence', 'Tempo'];
-    var traitsY = ['Views', 'Stream', 'Interactions'];
-
+   
     traitsX.forEach(function(traitX) {
         domainByTrait[traitX] = d3.extent(data, function(d) { return +d[traitX]; });
     });
 
     traitsY.forEach(function(traitY) {
         domainByTrait[traitY] = d3.extent(data, function(d) { return +d[traitY]; });
-        //domainByTrait[traitY][1] = domainByTrait[traitY][1];
-       // domainByTrait[traitY][0] = 10000;
     });
 
-    var svg = d3.select("body").append("svg")
-        .attr("width", size * traitsX.length + 2 * padding) // Adjusted width based on the number of x traits
-        .attr("height", size * traitsY.length + 2 * padding) // Adjusted height based on the number of y traits
-        .append("g")
-        .attr("transform", "translate(" + padding + "," - padding / 2 + ")");
+    cell.selectAll("path").remove();
+    cell.selectAll(".label").remove();
     
+    
+    cell.selectAll(".x.axis").remove();
+    cell.selectAll(".y.axis").remove();
+    cell.each(plot);
 
-       
-    var cell = svg.selectAll(".cell")
-        .data(cross(traitsY, traitsX)) // Reversed order of traitsY and traitsX for the correct layout
-        .enter().append("g")
-        .attr("transform", function(d, i) {
-          //var translateX = (i % traitsX.length) * (size + padding); // Adjusted translation for X
-         // var translateY = Math.floor(i / traitsX.length) * (size + padding); // Adjusted translation for Y
-         var translateX = (i % traitsX.length)  * (size + 10) + 1.5 * padding;
-         //var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * size;
-         var translateY = (traitsY.length - Math.floor(i / traitsX.length) - 1) * (size + 30);
-
-         return "translate(" + translateX + "," + translateY + ")";
-      }).each(plot);
-
+    
+    
+    
+    
     function plot(p) {
-      
+        
         var x = d3.scaleLinear()  
             .range([padding, size - padding]);
 
@@ -76,7 +76,7 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
         var xAxis = x.domain(domainByTrait[p.x]).range([padding, size - padding]).nice();
         
         //yAxis
-        var yAxis = y.domain(domainByTrait[p.y]).range([size - padding / 2 - 10, padding / 2]).nice();
+        var yAxis = y.domain(domainByTrait[p.y]).range([size - padding, padding]).nice();
        
         // Append x-axis label
         cell.append("text")
@@ -84,6 +84,7 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
             .attr("text-anchor", "middle")
             .attr("x", size / 2)
             .attr("y", size + padding / 2)
+            .style("font-weight", "bold") // Make the x-axis label text bold
             .text(p.x);
 
         // Append y-axis label
@@ -92,40 +93,44 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
             .attr("text-anchor", "middle")
             .attr("transform", "rotate(-90)")
             .attr("x", -size / 2)
-            .attr("y", - padding )
+            .attr("y", - padding / 2 )
+            .style("font-weight", "bold") // Make the y-axis label text bold
             .text(p.y);
-        // Append a group element for brush paths
-        var brushPaths = cell.append("g").attr("class", "brush-paths");
-
+   
         var xAx = cell.append("g")
+            .attr("class", "x axis") // Add class for x-axis
             .attr("transform", `translate(0, ${size - padding / 5})`)
-            .call(d3.axisBottom(x).ticks(4).tickFormat(formatAxisTick).tickSizeOuter(0));
+            .call(d3.axisBottom(x).ticks(4).tickFormat(formatAxisTick));
+        
         var yAx = cell.append("g")
-            //.attr("transform", `translate(${padding / 5}, 0)`)
+            .attr("class", "y axis") // Add class for x-axis
+            .attr("transform", `translate(${padding / 5}, 0)`)
             .call(d3.axisLeft(y).ticks(5));
 
-        var color = d3.scaleLinear()
-              .domain([0.01, 4]) // Assuming the range of your density values
-              .range(["#8ABF9C", "#F2D750"]); // Define your desired color range
-          
+        
+
         const densityData = d3.contourDensity()
             .x(function(d) { return x(d[p.x]); })
             .y(function(d) { return y(d[p.y]); })
-            .size([size, size]) // Adjusted size for correct placement
-            .bandwidth(5)
+            .size([size -  padding, size -  padding]) // Adjusted size for correct placement
+            .bandwidth(4)
             (data);
-
+        
+        
+        
         cell.insert("g", "g")
             .selectAll("path")
             .data(densityData)
             .enter().append("path")
-            .attr("transform", "translate(" + padding + "," + -padding / 10 + ")") // Adjusted translate
+            .attr("transform", "translate(" + padding + "," + padding / 10 + ")") // Adjusted translate
             .attr("d", d3.geoPath())
             .attr("fill", function(d) { return color(d.value); });
-    
+        
+        
+        
         
         var brush = d3.brush()
-            .extent([[padding, padding], [size - padding, size - padding]])
+            .extent([[0,0 ], [size , size]])
             .on("end", brushed);
         
         
@@ -133,92 +138,60 @@ d3.csv("../data/Spotify_Youtube.csv").then(function(data) {
         cell.append("g")
             .attr("class", "brush")
             .call(brush);
-      
-        function brushed(event) {
-          var extent = event.selection;
-          if (extent) {
-              var [[x0, y0], [x1, y1]] = extent;
-  
-              // Update x and y domains based on brush extent
-              var xDomainNew = [x.invert(x0), x.invert(x1)];
-              var yDomainNew = [y.invert(y1), y.invert(y0)];
-  
-              // Update the scales with new domains
-              x.domain(xDomainNew).nice();
-              y.domain(yDomainNew).nice();
-  
-              
-
-              // Clear the brush selection
-              //d3.select(this).call(brush.move, null);
-
-              // Recalculate densityData based on updated domains
-              const updatedDensityData = d3.contourDensity()
-                  .x(function(d) { return x(d[p.x]); })
-                  .y(function(d) { return y(d[p.y]); })
-                  .size([size, size])
-                  .bandwidth(4)
-                  (data);
-  
-              // Remove existing paths
-              cell.selectAll("path").remove();
-              
-              // Transition axes to reflect the new domain
-              xAx.transition().duration(1000).call(d3.axisBottom(x).ticks(4).tickFormat(formatAxisTick).tickSizeOuter(0));
-              yAx.transition().duration(1000).call(d3.axisLeft(y).ticks(4));
-
-              
-
-              // Enter new paths for updated density data
-              cell.selectAll("path")
-                  .data(updatedDensityData)
-                  .enter().append("path")
-                  .attr("transform", "translate(" + padding + "," + -padding / 10 + ")") // Adjusted translate
-                  .attr("d", d3.geoPath())
-                  .attr("fill", function(d) { return color(d.value); });
-
-           
-                
-
-          }
         
-       else {
-        // When there's no selection, zoom back out to original scale
+        
+        function brushed(event) {
+                const extent = event.selection;
+              
+                if (extent) {
+                    const [[x0, y0], [x1, y1]] = extent;
+              
+                    const xDomainNew = [x.invert(x0), x.invert(x1)];
+                    const yDomainNew = [y.invert(y1), y.invert(y0)];
 
-        // Reset the scales to their original domains
-        x.domain(domainByTrait[p.x]).nice();
-        y.domain(domainByTrait[p.y]).nice();
 
-
-        // Recalculate densityData based on original domains
-        const updatedDensityData = d3.contourDensity()
-            .x(function(d) { return x(d[p.x]); })
-            .y(function(d) { return y(d[p.y]); })
-            .size([size, size])
-            .bandwidth(5)
-            (data);
-
-        // Remove existing paths
-        cell.selectAll("path").remove();
-
-        // Transition axes to reflect the new domain
-        xAx.transition().duration(1000).call(d3.axisBottom(x).ticks(4).tickFormat(formatAxisTick).tickSizeOuter(0));
-        yAx.transition().duration(1000).call(d3.axisLeft(y).ticks(4));
-
-    
-        // Enter new paths for updated density data
-        cell.selectAll("path")
-            .data(updatedDensityData)
-            .enter().append("path")
-            .attr("transform", "translate(" + padding + "," + -padding / 10 + ")") // Adjusted translate
-            .attr("d", d3.geoPath())
-            .attr("fill", function(d) { return color(d.value); });
+                    x.domain(xDomainNew);
+                    y.domain(yDomainNew);
+                    //cell.select(".brush").call(brush.move, null) 
+                  
+                } else {
+                    x.domain(domainByTrait[p.x]);
+                    y.domain(domainByTrait[p.y]);
+                
+                }
+                const updatedDensityData = calculateDensityData();
+                updatePlot(updatedDensityData);
+              
+                function calculateDensityData() {
+                  return d3.contourDensity()
+                    .x(d => x(d[p.x]))
+                    .y(d => y(d[p.y]))
+                    .size([size - padding, size - padding]) 
+                    .bandwidth(4)(data);
+                }
+              
+                function updatePlot(updatedData) {
+                  cell.selectAll("path").remove();
+              
+                  xAx.transition().duration(1000).call(d3.axisBottom(x).ticks(4).tickFormat(formatAxisTick));
+                  yAx.transition().duration(1000).call(d3.axisLeft(y).ticks(4));
+              
+                  cell.selectAll("path")
+                    .data(updatedData)
+                    .enter().append("path")
+                    .attr("transform", "translate(" + padding + "," + padding / 10 + ")")
+                    .attr("d", d3.geoPath())
+                    .attr("fill", d => color(d.value));
+                }
+              
         }
-
-    } 
+              
+    
   }
-//}
-});
+
+
+
+};
 
 function cross(a, b) {
     var c = [], n = a.length, m = b.length, i, j;
@@ -232,3 +205,45 @@ function formatAxisTick(d) {
 }
   return d3.format('.2s')(d).replace('G', 'B').replace(/(\.0+)?G$/, 'M');
 }
+// Integrated function to handle radio button changes and initialize density plots
+function handleRadioChangeAndInitDensity(inputData, genresArray) {
+    console.log(genresArray)
+    // Function to handle radio button changes
+    function handleRadioChange(genres) {
+        var selectedValue = document.querySelector('input[name="displayOption"]:checked').value;
+        console.log("Selected value:", selectedValue);
+    
+        var genresLabel = document.querySelector('label[for="genresPerSongRadio"]');
+        if (!genres) {
+            genresLabel.textContent = 'Select A Song Or An Artist';
+            genresLabel.style.pointerEvents = 'none';
+            createDensityPlots(inputData); // Update plots with all data
+            return;
+        }
+    
+        genresLabel.textContent = genres.length > 0 ? 'Genres Per Song Or Artist (Selected)' : 'Genres Per Song';
+        genresLabel.style.pointerEvents = genres.length > 0 ? 'auto' : 'none';
+    
+        if (selectedValue === "genresPerSong" && genres.length > 0) {
+            var filteredData = inputData.filter(d => genres.includes(d.track_genre));
+            createDensityPlots(filteredData); // Update plots with filtered data
+        } else {
+            createDensityPlots(inputData); // Update plots with all data
+        }
+    }
+    
+
+    // Add event listeners to the radio buttons for change event
+    document.querySelectorAll('input[name="displayOption"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            handleRadioChange(genresArray);
+        });
+    });
+
+    // Call the initial density plot creation based on provided data
+    handleRadioChange(genresArray);
+
+    
+}
+
+

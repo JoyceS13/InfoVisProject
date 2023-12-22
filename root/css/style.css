@@ -84,3 +84,37 @@ body {
     background-color: var(--color-5);
 }
 
+
+
+.containerDensity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+/* Styles for radio buttons */
+input[type="radio"] {
+    display: none;
+}
+
+/* Styles for labels resembling big buttons */
+label {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Styles for checked labels */
+input[type="radio"]:checked + label {
+    background-color: var(--color-5);
+    color: white;
+}
+#density_plots {
+    padding: 3%; 
+}
