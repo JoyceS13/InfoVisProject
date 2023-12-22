@@ -20,30 +20,37 @@
 
 <body class="p-6">
     <!-- content -->
+    <header class=" text-white py-4 rounded-md shadow-lg mb-6 bg-color-red
+    ">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-2xl font-bold">Song Popularity Analysis</h1>
+            <p>Group 55: Olga Bunkova, Joyce Sung, Jasper Vos</p>
+        </div>
+    </header>
+
     <div id="comparison-card"></div>
 
-    <div class="flex flex-row justify-between">
-        <div class="w-2/3">
-            <div id="genre_bars" class=" border-4 border-color-red bg-white rounded-md p-3 pt-6 m-2">
-            </div>
+    <div class="w-1/3 absolute object-left-top top-96 left-2/3 pr-6" id="genre_comparison">
+        <div class="border-2 border-color-green bg-white rounded-md p-3 m-2 w-auto">
+            <canvas id="genre_chart"></canvas>
         </div>
-        <div class="w-1/3" id="genre_comparison">
-            <div class="border-4 border-color-green bg-white rounded-md p-3 m-2 w-auto">
-                <canvas id="genre_chart"></canvas>
-            </div>
-            <div id="genre_selector" class=" border-4 border-color-green bg-white rounded-md p-3 m-2">
-                <div>
-                    <form>
-                        <label for="items" class="block text-sm font-medium text-gray-600">Select Genres to
-                            display</label>
-                        <select id="items" multiple="multiple"
+        <div id="genre_selector" class=" border-2 border-color-green bg-white rounded-md p-3 m-2">
+            <div>
+                <form>
+                    <label for="items" class="block text-sm font-medium text-gray-600">Select Genres to
+                        display</label>
+                    <select id="items" multiple="multiple"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </select>
-                        <br>
-                    </form>
-                </div>
+                    </select>
+                    <br>
+                </form>
             </div>
         </div>
+    </div>
+
+    <div class="w-full">
+            <div id="genre_bars" class=" p-3 pt-6 m-2 w-full">
+            </div>
     </div>
 
     <!-- Genre Hist -->
@@ -53,11 +60,19 @@
     <div class="containerDensity">
         <div id="radioDiv">
             <input type="radio" id="allSongsRadio" name="displayOption" value="all" checked>
-            <label for="allSongsRadio">All Songs</label>
+            <label for="allSongsRadio" class="radio-label">All Songs</label>
         
             <input type="radio" id="genresPerSongRadio" name="displayOption" value="genresPerSong">
-            <label for="genresPerSongRadio">Genres Per Song</label>
+            <label for="genresPerSongRadio" class="radio-label">Genres Per Song</label>
         </div>
+        <!-- <div class="logo-container">
+            <div class="logo-text">
+                <p >Youtube</p>
+            </div>
+            <div class="logo-text">
+                <p >Spotify</p>
+            </div>
+        </div> -->
         <div id="density_plots"></div>
     </div>
 
