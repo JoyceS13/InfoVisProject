@@ -3,9 +3,6 @@ var width = window.innerWidth,
 padding = 60; 
 
 
-
-
-
 var traitsX = ['Danceability', 'Energy', 'Loudness', 'Valence', 'Tempo'];
 var traitsY = ['Views', 'Stream', 'Interactions'];
 var size = (width - 4 * padding ) / traitsX.length;
@@ -14,9 +11,9 @@ var svg = d3.select("#density_plots").append("svg")
         .attr("width", size * traitsX.length + 3 * padding)
         .attr("height", size * traitsY.length + 3 * padding)
         .append("g")
-        .attr("transform", "translate(" + padding + "," + (-padding / 2) + ")");
+        //.attr("transform", "translate(" + padding + "," + (-padding / 2) + ")");
 
-
+// Cells for individual plots
 var cell = svg.selectAll(".cell")
     .data(cross(traitsY, traitsX)) // Reversed order of traitsY and traitsX for the correct layout
     .enter().append("g")
@@ -26,6 +23,8 @@ var cell = svg.selectAll(".cell")
 
         return "translate(" + translateX + "," + translateY + ")";
 })
+
+// Color scheme
 var color = d3.scaleLinear()
               .domain([0.01, 1]) 
               .range(["#C2A0D9", "#F2D750"]); 
@@ -54,7 +53,7 @@ function createDensityPlots(data) {
     cell.selectAll("path").remove();
     cell.selectAll(".label").remove();
     
-    
+    // Clear the cells before plotting
     cell.selectAll(".x.axis").remove();
     cell.selectAll(".y.axis").remove();
     cell.selectAll(".brush").remove();
@@ -63,7 +62,7 @@ function createDensityPlots(data) {
     
     
     
-    
+    // Function to plot the graphs
     function plot(p) {
         
         var x = d3.scaleLinear()  
@@ -109,7 +108,7 @@ function createDensityPlots(data) {
             .call(d3.axisLeft(y).ticks(5));
 
         
-
+        // Desnity data
         const densityData = d3.contourDensity()
             .x(function(d) { return x(d[p.x]); })
             .y(function(d) { return y(d[p.y]); })
