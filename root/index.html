@@ -12,7 +12,8 @@
     <!-- import inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <!-- stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 
@@ -40,7 +41,7 @@
                     <label for="items" class="block text-sm font-medium text-gray-600">Select Genres to
                         display</label>
                     <select id="items" multiple="multiple"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </select>
                     <br>
                 </form>
@@ -49,19 +50,19 @@
     </div>
 
     <div class="w-full">
-            <div id="genre_bars" class=" p-3 pt-6 m-2 w-full">
-            </div>
+        <div id="genre_bars" class=" p-3 pt-6 m-2 w-full">
+        </div>
     </div>
 
     <!-- Genre Hist -->
     <div id="genre_histogram"></div>
 
-     <!-- Density plots -->
+    <!-- Density plots -->
     <div class="containerDensity">
         <div id="radioDiv">
             <input type="radio" id="allSongsRadio" name="displayOption" value="all" checked>
             <label for="allSongsRadio" class="radio-label">All Songs</label>
-        
+
             <input type="radio" id="genresPerSongRadio" name="displayOption" value="genresPerSong">
             <label for="genresPerSongRadio" class="radio-label">Genres Per Song</label>
         </div>
@@ -73,10 +74,18 @@
                 <p >Spotify</p>
             </div>
         </div> -->
-        <div id="density_plots"></div>
+        <div id="density_plots" class="relative">
+            <div id="infoBox" class="absolute top-0 bg-white border border-gray-300 p-2 m-2 shadow-lg flex items-center">
+                <div class="info-icon" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #C2A0D9; text-align: center; line-height: 20px; font-size: 16px; color: #C2A0D9; margin-right: 8px;">
+                    i
+                </div>
+                <p> Select an area to zoom in, click on the graph to reset.</p>
+            </div>
+            
+        </div>
     </div>
 
-    
+
 
     <!-- vue framework -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
