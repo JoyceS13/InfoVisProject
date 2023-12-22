@@ -3,27 +3,27 @@ export const InfoCardComponent = {
       <div v-if="data === undefined">Loading</div>
       <div v-else class="flex flex-col min-w-full">
         <div v-if="data.isSong" class="space-y-1 min-w-400">
-          <div class="info_card_header text-xl min-w-full">{{ data.Track }}</div>
+          <div class="info_card_header text-xl min-w-full font-semibold text-center">{{ data.Track }}</div>
           <div class="grid gap-0.5 grid-cols-2  grid-rows-10 whitespace-normal auto-rows-min object-left">
-              <div>Artist:</div>
+              <div class="font-medium">Artist</div>
               <div>{{ Array.from(data.Artist).join(', ') }}</div>
-              <div>Album:</div>
+              <div class="font-medium">Album</div>
               <div>{{ data.Album }}</div>
-              <div>Key:</div>
+              <div class="font-medium">Key</div>
               <div>{{ key }}</div>
-              <div>Tempo:</div>
+              <div class="font-medium">Tempo</div>
               <div>{{ tempo }}</div>
-              <div>Duration:</div>
+              <div class="font-medium">Duration</div>
               <div>{{ duration }}</div>
-              <div>Genres:</div>
+              <div class="font-medium">Genres</div>
               <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
-              <div >Spotify streams:</div>
+              <div class="font-medium">Spotify streams</div>
               <div>{{ streams}}</div>
-              <div >YouTube views:</div>
+              <div class="font-medium">YouTube views</div>
               <div>{{ views }}</div>
-              <div >YouTube interactions:</div>
+              <div class="font-medium">YouTube interactions</div>
               <div class="align-middle">{{ interactions }}</div>
-              <div>Total popularity:</div>
+              <div class="font-medium">Total popularity</div>
               <div>{{ popularity }}</div>
           </div>
           <div class="flex flex-row space-x-2 justify-center mt-4 h-8">
@@ -40,21 +40,21 @@ export const InfoCardComponent = {
           </div>
         </div>
         <div v-if="!data.isSong" class="space-y-1">
-          <div class="info_card_header text-xl ">{{ data.Artist }}</div>
+          <div class="info_card_header text-xl font-semibold">{{ data.Artist }}</div>
           <div class="grid grid-cols-2 grid-rows-7 gap-0.5 whitespace-normal auto-rows-min align-middle">
-              <div>Number of tracks:</div>
+              <div class="font-medium">Number of tracks</div>
               <div>{{ data.NumberOfTracks }}</div>
-              <div>Top track:</div>
+              <div class="font-medium">Top track</div>
               <div>{{ data.TopTrack }}</div>
-              <div>Genres:</div>
+              <div class="font-medium">Genres</div>
               <div class="capitalize">{{ Array.from(data.Genre).join(', ') }}</div>
-              <div >Spotify streams:</div>
+              <div class="font-medium">Spotify streams</div>
               <div>{{ streams }}</div>
-              <div >YouTube views:</div>
+              <div class="font-medium">YouTube views</div>
               <div>{{ views }}</div>
-              <div >YouTube interactions:</div>
+              <div class="font-medium">YouTube interactions</div>
               <div> {{ interactions }}</div>
-                <div>Total popularity:</div>
+                <div class="font-medium">Total popularity</div>
               <div>{{ popularity }}</div>
           </div>
         </div>
